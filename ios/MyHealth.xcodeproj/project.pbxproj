@@ -12,8 +12,21 @@
 		13B07FBC1A68108700A75B9A /* AppDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB01A68108700A75B9A /* AppDelegate.mm */; };
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
 		13B07FC11A68108700A75B9A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
+		2272DF4958254E6497A5CB68 /* SFUIText-Semibold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 63FCD8FB350541DFA5579211 /* SFUIText-Semibold.ttf */; };
+		3BFF5C2B2B104CC1A6C047A6 /* SFUIText-BoldItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 87871E4C5244499C9F43E309 /* SFUIText-BoldItalic.ttf */; };
+		538A751E4CCB4C71899D0B70 /* SFUIText-RegularItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 6ACB077F70B140E89CADF8B3 /* SFUIText-RegularItalic.ttf */; };
+		5812C256392C4CDEA73A10CB /* SFUIText-Heavy.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 77E096DE35604F6EB6B58A06 /* SFUIText-Heavy.ttf */; };
+		5923A47DDC6F4BB4815B9535 /* SFUIText-MediumItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 8A8AA6334FE1472B963A9BF0 /* SFUIText-MediumItalic.ttf */; };
+		6286CCCD2244419EB2B45597 /* SFUIText-SemiboldItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = AF049533DB9A4BD497AE84DF /* SFUIText-SemiboldItalic.ttf */; };
+		63249B940BED45FD8A29AC5F /* SFUIText-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = A0E7772B45AF4A9A9E4CA75F /* SFUIText-Regular.ttf */; };
+		6C338DF35F4748C2B44F62BE /* SFUIText-HeavyItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 3B287E440E2E4DFC8B0792CB /* SFUIText-HeavyItalic.ttf */; };
 		7699B88040F8A987B510C191 /* libPods-MyHealth-MyHealthTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 19F6CBCC0A4E27FBF8BF4A61 /* libPods-MyHealth-MyHealthTests.a */; };
+		76B25F47E567400ABE87905C /* SFUIText-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = A8AA14EEC5E2443894CC0AAF /* SFUIText-Medium.ttf */; };
 		81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */; };
+		97CD9AE97C81473699679AF7 /* SFUIText-LightItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 377AEEB988144161AB521883 /* SFUIText-LightItalic.ttf */; };
+		A950DD63DBDA7C3673FB68C1 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 606595CDE7B328ED02239CEA /* PrivacyInfo.xcprivacy */; };
+		E701E9D9BF5A44ED918C7D62 /* SFUIText-Light.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 2B6C6B47DE09410CBE2E1B0E /* SFUIText-Light.ttf */; };
+		ED80E1F84CB84D108F40FCC9 /* SFUIText-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = C7BA2763AEAE44F19A02B628 /* SFUIText-Bold.ttf */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -36,14 +49,27 @@
 		13B07FB51A68108700A75B9A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = MyHealth/Images.xcassets; sourceTree = "<group>"; };
 		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = MyHealth/Info.plist; sourceTree = "<group>"; };
 		13B07FB71A68108700A75B9A /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = main.m; path = MyHealth/main.m; sourceTree = "<group>"; };
-	    13B07FB81A68108700A75B9A /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = PrivacyInfo.xcprivacy; path = MyHealth/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		13B07FB81A68108700A75B9A /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = PrivacyInfo.xcprivacy; path = MyHealth/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		19F6CBCC0A4E27FBF8BF4A61 /* libPods-MyHealth-MyHealthTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-MyHealth-MyHealthTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		2B6C6B47DE09410CBE2E1B0E /* SFUIText-Light.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "SFUIText-Light.ttf"; path = "../assets/fonts/SFUIText-Light.ttf"; sourceTree = "<group>"; };
+		377AEEB988144161AB521883 /* SFUIText-LightItalic.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "SFUIText-LightItalic.ttf"; path = "../assets/fonts/SFUIText-LightItalic.ttf"; sourceTree = "<group>"; };
+		3B287E440E2E4DFC8B0792CB /* SFUIText-HeavyItalic.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "SFUIText-HeavyItalic.ttf"; path = "../assets/fonts/SFUIText-HeavyItalic.ttf"; sourceTree = "<group>"; };
 		3B4392A12AC88292D35C810B /* Pods-MyHealth.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MyHealth.debug.xcconfig"; path = "Target Support Files/Pods-MyHealth/Pods-MyHealth.debug.xcconfig"; sourceTree = "<group>"; };
 		5709B34CF0A7D63546082F79 /* Pods-MyHealth.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MyHealth.release.xcconfig"; path = "Target Support Files/Pods-MyHealth/Pods-MyHealth.release.xcconfig"; sourceTree = "<group>"; };
 		5B7EB9410499542E8C5724F5 /* Pods-MyHealth-MyHealthTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MyHealth-MyHealthTests.debug.xcconfig"; path = "Target Support Files/Pods-MyHealth-MyHealthTests/Pods-MyHealth-MyHealthTests.debug.xcconfig"; sourceTree = "<group>"; };
 		5DCACB8F33CDC322A6C60F78 /* libPods-MyHealth.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-MyHealth.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		606595CDE7B328ED02239CEA /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xml; name = PrivacyInfo.xcprivacy; path = MyHealth/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		63FCD8FB350541DFA5579211 /* SFUIText-Semibold.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "SFUIText-Semibold.ttf"; path = "../assets/fonts/SFUIText-Semibold.ttf"; sourceTree = "<group>"; };
+		6ACB077F70B140E89CADF8B3 /* SFUIText-RegularItalic.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "SFUIText-RegularItalic.ttf"; path = "../assets/fonts/SFUIText-RegularItalic.ttf"; sourceTree = "<group>"; };
+		77E096DE35604F6EB6B58A06 /* SFUIText-Heavy.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "SFUIText-Heavy.ttf"; path = "../assets/fonts/SFUIText-Heavy.ttf"; sourceTree = "<group>"; };
 		81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = LaunchScreen.storyboard; path = MyHealth/LaunchScreen.storyboard; sourceTree = "<group>"; };
+		87871E4C5244499C9F43E309 /* SFUIText-BoldItalic.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "SFUIText-BoldItalic.ttf"; path = "../assets/fonts/SFUIText-BoldItalic.ttf"; sourceTree = "<group>"; };
 		89C6BE57DB24E9ADA2F236DE /* Pods-MyHealth-MyHealthTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MyHealth-MyHealthTests.release.xcconfig"; path = "Target Support Files/Pods-MyHealth-MyHealthTests/Pods-MyHealth-MyHealthTests.release.xcconfig"; sourceTree = "<group>"; };
+		8A8AA6334FE1472B963A9BF0 /* SFUIText-MediumItalic.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "SFUIText-MediumItalic.ttf"; path = "../assets/fonts/SFUIText-MediumItalic.ttf"; sourceTree = "<group>"; };
+		A0E7772B45AF4A9A9E4CA75F /* SFUIText-Regular.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "SFUIText-Regular.ttf"; path = "../assets/fonts/SFUIText-Regular.ttf"; sourceTree = "<group>"; };
+		A8AA14EEC5E2443894CC0AAF /* SFUIText-Medium.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "SFUIText-Medium.ttf"; path = "../assets/fonts/SFUIText-Medium.ttf"; sourceTree = "<group>"; };
+		AF049533DB9A4BD497AE84DF /* SFUIText-SemiboldItalic.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "SFUIText-SemiboldItalic.ttf"; path = "../assets/fonts/SFUIText-SemiboldItalic.ttf"; sourceTree = "<group>"; };
+		C7BA2763AEAE44F19A02B628 /* SFUIText-Bold.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "SFUIText-Bold.ttf"; path = "../assets/fonts/SFUIText-Bold.ttf"; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
@@ -94,6 +120,7 @@
 				81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */,
 				13B07FB71A68108700A75B9A /* main.m */,
 				13B07FB81A68108700A75B9A /* PrivacyInfo.xcprivacy */,
+				606595CDE7B328ED02239CEA /* PrivacyInfo.xcprivacy */,
 			);
 			name = MyHealth;
 			sourceTree = "<group>";
@@ -106,6 +133,25 @@
 				19F6CBCC0A4E27FBF8BF4A61 /* libPods-MyHealth-MyHealthTests.a */,
 			);
 			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		56419EDC45FA4D88A1FBB0C4 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				C7BA2763AEAE44F19A02B628 /* SFUIText-Bold.ttf */,
+				87871E4C5244499C9F43E309 /* SFUIText-BoldItalic.ttf */,
+				77E096DE35604F6EB6B58A06 /* SFUIText-Heavy.ttf */,
+				3B287E440E2E4DFC8B0792CB /* SFUIText-HeavyItalic.ttf */,
+				2B6C6B47DE09410CBE2E1B0E /* SFUIText-Light.ttf */,
+				377AEEB988144161AB521883 /* SFUIText-LightItalic.ttf */,
+				A8AA14EEC5E2443894CC0AAF /* SFUIText-Medium.ttf */,
+				8A8AA6334FE1472B963A9BF0 /* SFUIText-MediumItalic.ttf */,
+				A0E7772B45AF4A9A9E4CA75F /* SFUIText-Regular.ttf */,
+				6ACB077F70B140E89CADF8B3 /* SFUIText-RegularItalic.ttf */,
+				63FCD8FB350541DFA5579211 /* SFUIText-Semibold.ttf */,
+				AF049533DB9A4BD497AE84DF /* SFUIText-SemiboldItalic.ttf */,
+			);
+			name = Resources;
 			sourceTree = "<group>";
 		};
 		832341AE1AAA6A7D00B99B32 /* Libraries */ = {
@@ -124,6 +170,7 @@
 				83CBBA001A601CBA00E9B192 /* Products */,
 				2D16E6871FA4F8E400B85C8A /* Frameworks */,
 				BBD78D7AC51CEA395F1C20DB /* Pods */,
+				56419EDC45FA4D88A1FBB0C4 /* Resources */,
 			);
 			indentWidth = 2;
 			sourceTree = "<group>";
@@ -245,6 +292,19 @@
 			files = (
 				81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */,
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
+				A950DD63DBDA7C3673FB68C1 /* PrivacyInfo.xcprivacy in Resources */,
+				ED80E1F84CB84D108F40FCC9 /* SFUIText-Bold.ttf in Resources */,
+				3BFF5C2B2B104CC1A6C047A6 /* SFUIText-BoldItalic.ttf in Resources */,
+				5812C256392C4CDEA73A10CB /* SFUIText-Heavy.ttf in Resources */,
+				6C338DF35F4748C2B44F62BE /* SFUIText-HeavyItalic.ttf in Resources */,
+				E701E9D9BF5A44ED918C7D62 /* SFUIText-Light.ttf in Resources */,
+				97CD9AE97C81473699679AF7 /* SFUIText-LightItalic.ttf in Resources */,
+				76B25F47E567400ABE87905C /* SFUIText-Medium.ttf in Resources */,
+				5923A47DDC6F4BB4815B9535 /* SFUIText-MediumItalic.ttf in Resources */,
+				63249B940BED45FD8A29AC5F /* SFUIText-Regular.ttf in Resources */,
+				538A751E4CCB4C71899D0B70 /* SFUIText-RegularItalic.ttf in Resources */,
+				2272DF4958254E6497A5CB68 /* SFUIText-Semibold.ttf in Resources */,
+				6286CCCD2244419EB2B45597 /* SFUIText-SemiboldItalic.ttf in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -468,6 +528,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = N2FK8MTVL2;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = MyHealth/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -481,6 +542,7 @@
 					"-lc++",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "org.reactjs.native.example.$(PRODUCT_NAME:rfc1034identifier)";
+				"PRODUCT_BUNDLE_IDENTIFIER[sdk=iphoneos*]" = com.jackstewart.myhealthapp;
 				PRODUCT_NAME = MyHealth;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
@@ -495,6 +557,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = N2FK8MTVL2;
 				INFOPLIST_FILE = MyHealth/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -507,6 +570,7 @@
 					"-lc++",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "org.reactjs.native.example.$(PRODUCT_NAME:rfc1034identifier)";
+				"PRODUCT_BUNDLE_IDENTIFIER[sdk=iphoneos*]" = com.jackstewart.myhealthapp;
 				PRODUCT_NAME = MyHealth;
 				SWIFT_VERSION = 5.0;
 				VERSIONING_SYSTEM = "apple-generic";
@@ -517,6 +581,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CC = "";
 				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_CXX_LANGUAGE_STANDARD = "c++20";
 				CLANG_CXX_LIBRARY = "libc++";
@@ -544,6 +609,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				COPY_PHASE_STRIP = NO;
+				CXX = "";
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
 				"EXCLUDED_ARCHS[sdk=iphonesimulator*]" = "";
@@ -563,6 +629,8 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 13.4;
+				LD = "";
+				LDPLUSPLUS = "";
 				LD_RUNPATH_SEARCH_PATHS = (
 					/usr/lib/swift,
 					"$(inherited)",
@@ -582,7 +650,10 @@
 					"-DFOLLY_CFG_NO_COROUTINES=1",
 					"-DFOLLY_HAVE_CLOCK_GETTIME=1",
 				);
+				OTHER_LDFLAGS = "$(inherited)  ";
+				REACT_NATIVE_PATH = "${PODS_ROOT}/../../node_modules/react-native";
 				SDKROOT = iphoneos;
+				USE_HERMES = true;
 			};
 			name = Debug;
 		};
@@ -590,6 +661,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CC = "";
 				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_CXX_LANGUAGE_STANDARD = "c++20";
 				CLANG_CXX_LIBRARY = "libc++";
@@ -617,6 +689,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				COPY_PHASE_STRIP = YES;
+				CXX = "";
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				"EXCLUDED_ARCHS[sdk=iphonesimulator*]" = "";
@@ -629,6 +702,8 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 13.4;
+				LD = "";
+				LDPLUSPLUS = "";
 				LD_RUNPATH_SEARCH_PATHS = (
 					/usr/lib/swift,
 					"$(inherited)",
@@ -647,7 +722,10 @@
 					"-DFOLLY_CFG_NO_COROUTINES=1",
 					"-DFOLLY_HAVE_CLOCK_GETTIME=1",
 				);
+				OTHER_LDFLAGS = "$(inherited)  ";
+				REACT_NATIVE_PATH = "${PODS_ROOT}/../../node_modules/react-native";
 				SDKROOT = iphoneos;
+				USE_HERMES = true;
 				VALIDATE_PRODUCT = YES;
 			};
 			name = Release;

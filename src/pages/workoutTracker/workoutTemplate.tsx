@@ -1,0 +1,694 @@
+import React, {useContext, useEffect, useState} from 'react';
+import {
+  View,
+  SafeAreaView,
+  Text,
+  Dimensions,
+  StyleSheet,
+  TextInput,
+  TouchableOpacity,
+  FlatList,
+  ScrollView,
+} from 'react-native';
+import {Cross, Tick} from '../../../assets/svgs/workoutTrackerSvgs';
+const height = Dimensions.get('screen').height;
+const width = Dimensions.get('screen').width;
+import {useQuery} from '@tanstack/react-query';
+import {fetchExercises} from '../../../hooks/fetch';
+import {useWorkoutTracker} from '../../../contexts/workoutTracker';
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withTiming,
+  runOnJS,
+} from 'react-native-reanimated';
+import {format} from 'date-fns/format';
+import {getExercise} from '../../../localStorage/fetch';
+import {storeTemplate} from '../../../localStorage/insert';
+
+const CreateWorkout = () => {
+  let exerciseTemplate = {name: '', sets: []};
+  const [exerciseArr, setExerciseArr] = useState([]);
+  const [set, setSet] = useState([]);
+  const [exercises, setExercises] = useState([]);
+  const [workoutName, setWorkoutName] = useState('');
+  const {workoutTracker, setWorkoutTracker} = useWorkoutTracker();
+  const [addExerciseModal, setAddExerciseModal] = useState(false);
+  const [closeAddExerciseModal, setCloseAddExerciseModal] = useState(false);
+  const [template, setTemplate] = useState({
+    name: '',
+    exercises: [],
+    sets: [],
+    date: '',
+    duration: 0,
+    id: 0,
+    session_num: 0,
+  });
+  const [close, setClose] = useState(false);
+
+  useEffect(() => {
+    handleGetExercise();
+  }, []);
+
+  useEffect(() => {
+    const exercise = workoutTracker.exercise;
+    let isPresent = false;
+    if (exercise) {
+      for (let i = 0; i < exerciseArr.length; i++) {
+        if (exercise === exerciseArr[i].name) {
+          isPresent = true;
+        }
+      }
+      if (isPresent === false) {
+        const exerciseTemplate = {
+          id: exerciseArr.length + 1,
+          name: workoutTracker.exercise,
+        };
+
+        setExerciseArr(prevArr => [...prevArr, exerciseTemplate]);
+        setWorkoutTracker({...workoutTracker, exercise: ''});
+      }
+    }
+  }, [workoutTracker.exercise]);
+
+  useEffect(() => {}, [exerciseArr]);
+
+  const setTemplateName = (name: string) => {
+    setTemplate({...template, name: name});
+  };
+
+  const handleGetExercise = async () => {
+    const res = await getExercise('exercise');
+    setExercises(res);
+  };
+
+  const generateRandomID = () => {
+    let id = '';
+    for (let i = 0; i < 8; i++) {
+      id += Math.floor(Math.random() * 10); // Generates a random number between 0 and 9
+    }
+    return parseInt(id, 10);
+  };
+
+  const handleAddSet = (id: number) => {
+    const val = generateRandomID();
+    let setObject = {
+      id: val,
+      exercise_id: id,
+      weight: 0,
+      reps: 0,
+      created_at: format(new Date(), 'hh:mm:ss'),
+      isComplete: false,
+    };
+    let newArr = [...set, setObject];
+    newArr.sort((a, b) => {
+      return (
+        new Date(`1970-01-01T${a.created_at}Z`) -
+        new Date(`1970-01-01T${b.created_at}Z`)
+      );
+    });
+    setSet(newArr);
+  };
+
+  const updateArrayElementWeight = (id: number, weight: string) => {
+    const numericValue = weight === '' ? 0 : parseInt(weight, 10);
+    if (isNaN(numericValue)) {
+      return;
+    }
+    let filteredArray = set.filter(item => item.id !== id);
+    let elementToManipulate = set.find(item => item.id === id);
+    if (elementToManipulate) {
+      elementToManipulate.weight = numericValue; // Update with the numeric value
+    }
+
+    let newArray = [...filteredArray, elementToManipulate];
+    newArray.sort((a, b) => {
+      return (
+        new Date(`1970-01-01T${a.created_at}Z`) -
+        new Date(`1970-01-01T${b.created_at}Z`)
+      );
+    });
+
+    setSet(newArray);
+  };
+
+  const handleSavingWorkout = async () => {
+    const genId = generateRandomID();
+    if (template.name.length < 1) {
+      console.error("Error: Can't save a template without a name");
+    } else {
+      const obj = {
+        name: template.name,
+        exercises: exerciseArr,
+        sets: set,
+        date: '',
+        duration: 0,
+        id: genId,
+        session_num: 0,
+      };
+      // const localTemplate = template;
+      const res = await storeTemplate('templates', obj);
+      if (res === true) {
+        setWorkoutTracker({...workoutTracker, closeSlide: true});
+        const empty = {
+          name: '',
+          exercises: [],
+          sets: [],
+          date: '',
+          duration: 0,
+          id: 0,
+          session_num: 0,
+        };
+        setTemplate(empty);
+      }
+    }
+  };
+
+  const updateArrayElementReps = (id: number, reps: string) => {
+    const numericValue = reps === '' ? 0 : parseInt(reps, 10);
+    if (isNaN(numericValue)) {
+      return;
+    }
+    let filteredArray = set.filter(item => item.id !== id);
+    let elementToManipulate = set.find(item => item.id === id);
+    if (elementToManipulate) {
+      elementToManipulate.reps = numericValue; // Update with the numeric value
+    }
+
+    let newArray = [...filteredArray, elementToManipulate];
+    newArray.sort((a, b) => {
+      return (
+        new Date(`1970-01-01T${a.created_at}Z`) -
+        new Date(`1970-01-01T${b.created_at}Z`)
+      );
+    });
+
+    setSet(newArray);
+  };
+
+  const handleClose = () => {
+    setClose(false);
+    setWorkoutTracker({...workoutTracker, closeSlide: true});
+  };
+
+  const closeButton = () => {
+    return (
+      <View
+        style={{
+          width: '100%',
+          height: '100%',
+          position: 'absolute',
+          zIndex: 4,
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}>
+        <View
+          style={{
+            backgroundColor: 'black',
+            opacity: 0.3,
+            width: '100%',
+            height: '100%',
+          }}></View>
+        <View
+          style={{
+            position: 'absolute',
+            zIndex: 3,
+            width: 200,
+            // height: 120,
+            backgroundColor: '#24262E',
+            borderRadius: 10,
+            borderWidth: 1,
+            borderColor: 'white',
+            flexDirection: 'column',
+            padding: 10,
+            alignItems: 'center',
+          }}>
+          <Text style={[styles.medSF, {fontSize: 16, paddingBottom: 10}]}>
+            Are you sure?
+          </Text>
+          <View
+            style={{
+              width: '100%',
+              height: 1,
+              backgroundColor: '#D9D9D9',
+              marginBottom: 10,
+            }}
+          />
+          <View style={{width: '100%', flexDirection: 'row'}}>
+            <TouchableOpacity
+              role="button"
+              style={[{width: '50%'}]}
+              onPress={handleClose}>
+              <Text style={[{fontSize: 16, textAlign: 'center'}, styles.medSF]}>
+                Yes
+              </Text>
+            </TouchableOpacity>
+            <View
+              style={{width: 1, height: '100%', backgroundColor: '#D9D9D9'}}
+            />
+            <TouchableOpacity
+              role="button"
+              style={[{width: '50%'}]}
+              onPress={() => {
+                setClose(false);
+              }}>
+              <Text style={[{fontSize: 16, textAlign: 'center'}, styles.medSF]}>
+                No
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </View>
+    );
+  };
+
+  const renderExercises = ({item, index}: {item: object; index: number}) => {
+    const setsForExercise =
+      set.filter(setObject => setObject.exercise_id === item.id) || [];
+    return (
+      <View style={{flexDirection: 'column', paddingBottom: 10}}>
+        <Text style={[styles.blueSemiboldSF, {paddingVertical: 10}]}>
+          {item.name}
+        </Text>
+        <View
+          key={index}
+          style={{
+            width: '100%',
+            flexDirection: 'row',
+            justifyContent: 'space-between',
+            paddingBottom: 10,
+          }}>
+          <View
+            style={{
+              width: width * 0.06,
+              height: 30,
+              // backgroundColor: '#A7A8AB',
+              borderRadius: 5,
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}>
+            <Text style={[styles.semiboldSF, {fontSize: 16}]}>Set</Text>
+          </View>
+          <View
+            style={{
+              width: width * 0.45,
+              height: 30,
+              borderRadius: 5,
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}>
+            <Text style={[styles.semiboldSF, {fontSize: 16}]}>Previous</Text>
+          </View>
+          <View
+            style={{
+              width: width * 0.115,
+              height: 30,
+              borderRadius: 5,
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}>
+            <Text style={[styles.semiboldSF, {fontSize: 16}]}>kg</Text>
+          </View>
+          <View
+            style={{
+              width: width * 0.09,
+              height: 30,
+              borderRadius: 5,
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}>
+            <Text style={[styles.semiboldSF, {fontSize: 16}]}>Reps</Text>
+          </View>
+          <View
+            style={{
+              width: width * 0.07,
+              height: 30,
+              borderRadius: 5,
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}>
+            <Text style={[styles.medSF, {fontSize: 14}]}></Text>
+          </View>
+        </View>
+        {setsForExercise.map((set, index) => (
+          <View
+            key={index}
+            style={{
+              width: '100%',
+              flexDirection: 'row',
+              justifyContent: 'space-between',
+              paddingBottom: 10,
+            }}>
+            <View
+              style={{
+                width: width * 0.06,
+                height: 30,
+                backgroundColor: '#A7A8AB',
+                borderRadius: 5,
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}>
+              <Text style={[styles.medSF, {fontSize: 14}]}>{index + 1}</Text>
+            </View>
+            <View
+              style={{
+                width: width * 0.45,
+                height: 30,
+                backgroundColor: '#A7A8AB',
+                borderRadius: 5,
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}>
+              <Text style={[styles.medSF, {fontSize: 14}]}></Text>
+            </View>
+            <View
+              style={{
+                width: width * 0.115,
+                height: 30,
+                backgroundColor: '#A7A8AB',
+                borderRadius: 5,
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}>
+              <TextInput
+                style={[styles.medSF, {fontSize: 14}]}
+                onChangeText={text => {
+                  updateArrayElementWeight(set.id, text);
+                }}>
+                {set.weight}
+              </TextInput>
+            </View>
+            <View
+              style={{
+                width: width * 0.09,
+                height: 30,
+                backgroundColor: '#A7A8AB',
+                borderRadius: 5,
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}>
+              <TextInput
+                keyboardType="numeric"
+                value={set.reps}
+                onChangeText={text => {
+                  updateArrayElementReps(set.id, text);
+                }}
+                style={[styles.medSF, {fontSize: 14}]}>
+                {set.reps}
+              </TextInput>
+            </View>
+            <TouchableOpacity
+              style={{
+                width: width * 0.07,
+                height: 30,
+                backgroundColor: '#A7A8AB',
+                borderRadius: 5,
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}>
+              <Tick />
+            </TouchableOpacity>
+          </View>
+        ))}
+        <TouchableOpacity
+          style={{
+            width: '100%',
+            height: 26,
+            backgroundColor: '#E5D120',
+            alignItems: 'center',
+            justifyContent: 'center',
+            borderRadius: 5,
+          }}
+          onPress={() => {
+            handleAddSet(item.id);
+          }}>
+          <Text style={[styles.medSF, {fontSize: 14}]}>Add set</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  };
+
+  const toggleModal = () => {
+    setWorkoutTracker({...workoutTracker, animateAddExercise: true});
+  };
+
+  return (
+    <View
+      style={{
+        flex: 1,
+        flexDirection: 'column',
+        width: '100%',
+        // padding: 20,
+        position: 'relative',
+        justifyContent: 'space-between',
+      }}>
+      {close === true && closeButton()}
+      {workoutTracker.animateAddExercise === true && (
+        <AddExerciseModal exercises={exercises} />
+      )}
+      <ScrollView style={{paddingLeft: 20, paddingRight: 20, paddingTop: 10}}>
+        <View
+          style={{
+            flexDirection: 'row',
+            justifyContent: 'space-between',
+            width: '100%',
+            //   borderWidth: 1,
+            paddingBottom: 30,
+          }}>
+          <TextInput
+            placeholder="Enter workout name"
+            placeholderTextColor={'white'}
+            onChangeText={val => {
+              setTemplateName(val);
+            }}
+            value={template.name}
+            style={[
+              {
+                paddingTop: 10,
+                paddingBottom: 10,
+                width: 260,
+                fontSize: 16,
+                color: 'white',
+                opacity: template.name.length > 0 ? 1 : 0.5,
+              },
+              styles.semiboldSF,
+            ]}
+          />
+          <TouchableOpacity
+            onPress={() => {
+              setClose(true);
+            }}
+            style={{paddingTop: 10, paddingBottom: 10, paddingLeft: 10}}>
+            <Cross width={16} height={16} />
+          </TouchableOpacity>
+        </View>
+        <View style={{paddingBottom: 40}}>
+          <FlatList
+            scrollEnabled={false}
+            data={exerciseArr}
+            renderItem={renderExercises}
+            keyExtractor={(item, index) => index.toString()}
+          />
+        </View>
+        <TouchableOpacity
+          onPress={toggleModal}
+          style={{
+            alignItems: 'center',
+            justifyContent: 'center',
+            width: '100%',
+            backgroundColor: '#00B0FF',
+            borderRadius: 5,
+            marginBottom: 70,
+          }}>
+          <Text style={[{fontSize: 15, paddingVertical: 10}, styles.medSF]}>
+            Add exercise
+          </Text>
+        </TouchableOpacity>
+      </ScrollView>
+      <TouchableOpacity
+        onPress={handleSavingWorkout}
+        style={{
+          height: 60,
+          backgroundColor: '#00B0FF',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}>
+        <Text style={[styles.medSF, {fontSize: 16}]}>Save</Text>
+      </TouchableOpacity>
+    </View>
+  );
+};
+
+const AddExerciseModal = ({exercises}: {exercises: Array<Object>}) => {
+  const [exerciseVal, setExerciseVal] = useState('');
+  const opacity = useSharedValue(0);
+  const {workoutTracker, setWorkoutTracker} = useWorkoutTracker();
+  const [animationToggle, setAnimationToggle] = useState(false);
+  const [close, setClose] = useState(false);
+
+  useEffect(() => {
+    if (workoutTracker.animateAddExercise === true) {
+      opacity.value = withTiming(1, {duration: 200});
+    }
+  }, [workoutTracker.animateAddExercise]);
+
+  useEffect(() => {
+    if (close === true) {
+      opacity.value = withTiming(0, {duration: 200});
+      const timer = setTimeout(() => {
+        setWorkoutTracker({...workoutTracker, animateAddExercise: false});
+      }, 200);
+      setClose(false);
+    }
+  }, [close]);
+
+  const handleAddExercise = ({name}: {name: string}) => {
+    setWorkoutTracker({...workoutTracker, exercise: name});
+    setClose(true);
+  };
+
+  const animatedOpacity = useAnimatedStyle(() => {
+    return {
+      opacity: opacity.value,
+    };
+  });
+
+  return (
+    <Animated.View
+      style={[
+        {
+          position: 'absolute',
+          zIndex: 3,
+          width: width * 0.85,
+          height: height * 0.44,
+          backgroundColor: '#24262E',
+          borderRadius: 10,
+          borderWidth: 1,
+          borderColor: 'white',
+          flexDirection: 'column',
+          paddingVertical: 10,
+          bottom: height / 2 - (height * 0.44) / 2,
+          // top: (height * 0.44) / 2,
+          // bottom: height / 4,
+          left: width / 2 - (width * 0.85) / 2,
+        },
+        animatedOpacity,
+      ]}>
+      <View
+        style={{
+          flexDirection: 'row',
+          width: '100%',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          marginBottom: 10,
+          paddingHorizontal: 10,
+        }}>
+        <Text style={[{fontSize: 16}, styles.blueSFMed]}>New</Text>
+        <TouchableOpacity
+          onPress={() => {
+            setClose(true);
+          }}>
+          <Cross width={14} height={14} />
+        </TouchableOpacity>
+      </View>
+      <View style={{paddingHorizontal: 10, width: '100%'}}>
+        <TextInput
+          style={[
+            {
+              paddingVertical: 10,
+              paddingHorizontal: 10,
+              color: 'white',
+              width: '100%',
+              backgroundColor: '#353535',
+              borderRadius: 5,
+              fontSize: 14,
+              marginBottom: 20,
+            },
+            styles.medSF,
+          ]}
+          placeholder="Search"
+          placeholderTextColor={'white'}
+          value={exerciseVal}
+          onChangeText={text => {
+            setExerciseVal(text);
+          }}
+        />
+      </View>
+
+      {/* <Text
+        style={[
+          styles.medSF,
+          {fontSize: 14, paddingLeft: 10, paddingBottom: 10},
+        ]}>
+        Recent
+      </Text> */}
+      <View
+        style={{
+          width: '100%',
+          height: 1,
+          backgroundColor: '#D9D9D9',
+        }}
+      />
+      <ScrollView style={{flexDirection: 'column', paddingHorizontal: 10}}>
+        {exercises?.map((item, index) => (
+          <TouchableOpacity
+            onPress={() => {
+              handleAddExercise({name: item.name});
+            }}
+            key={index}
+            style={{
+              alignItems: 'flex-start',
+              justifyContent: 'center',
+              // paddingVertical: 10,
+            }}>
+            <Text
+              style={[
+                {
+                  fontSize: 14,
+                  lineHeight: 14,
+                  paddingVertical: 14,
+                },
+                styles.medSF,
+              ]}>
+              {item.name}
+            </Text>
+            <View
+              style={{
+                width: '100%',
+                height: 1,
+                backgroundColor: '#D9D9D9',
+                borderRadius: 20,
+              }}
+            />
+          </TouchableOpacity>
+        ))}
+      </ScrollView>
+    </Animated.View>
+  );
+};
+
+const styles = StyleSheet.create({
+  semiboldSF: {
+    fontFamily: 'SFUIText-Semibold',
+    color: 'white',
+  },
+  blueSemiboldSF: {
+    fontFamily: 'SFUIText-Semibold',
+    color: '#00B0FF',
+    fontSize: 16,
+  },
+  medSF: {
+    fontFamily: 'SFUIText-Medium',
+    color: 'white',
+  },
+  regSF: {
+    fontFamily: 'SFUIText-Regular',
+    color: 'white',
+  },
+  blueSFMed: {
+    fontFamily: 'SFUIText-Medium',
+    color: '#00B0FF',
+  },
+});
+
+export default CreateWorkout;
