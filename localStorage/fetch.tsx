@@ -6,29 +6,28 @@ const getExercise = async key => {
     const value = await AsyncStorage.getItem(key);
     if (value !== null) {
       const parsedValue = JSON.parse(value); // Parse the JSON string
-      console.log('Data retrieved:', parsedValue);
       return parsedValue;
     }
     return null; // In case value is null
   } catch (error) {
-    console.error('Error retrieving data', error);
     return null; // Return null in case of error
   }
 };
 
 const getTemplates = async key => {
-  try {
-    const value = await AsyncStorage.getItem(key);
-    if (value !== null) {
-      const parsedValue = JSON.parse(value); // Parse the JSON string
-      console.log('Data retrieved:', parsedValue);
-      return parsedValue;
-    }
-    return null; // In case value is null
-  } catch (error) {
-    console.error('Error retrieving data', error);
-    return null; // Return null in case of error
-  }
+  //   try {
+  //   const value = await AsyncStorage.getItem(key);
+  const jsonValue = await AsyncStorage.getItem(key);
+  let dataArray = jsonValue != null ? JSON.parse(jsonValue) : [];
+  return dataArray;
+  //     if (value !== null) {
+  //       const parsedValue = JSON.parse(value); // Parse the JSON string
+  //       return parsedValue;
+  //     }
+  //     return null; // In case value is null
+  //   } catch (error) {
+  //     return null; // Return null in case of error
+  //   }
 };
 
 export {getExercise, getTemplates};

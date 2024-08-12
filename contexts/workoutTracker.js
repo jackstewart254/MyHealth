@@ -9,6 +9,17 @@ export const WorkoutTrackerProvider = ({ children }) => {
     animateAddExercise: false,
     animateSlide: false,
     closeSlide: false,
+    newWorkout: {},
+    slideView: 'create', //edit, active
+    currentTemplate: {
+      name: '',
+      exercises: [],
+      sets: [],
+      date: '',
+      duration: 0,
+      id: 0,
+      session_num: 0,
+    },
   });
 
   return (
