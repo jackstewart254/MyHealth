@@ -78,10 +78,32 @@ const checkIfPresent = async (id, template) => {
   }
 };
 
+const setActiveWorkoutState = async information => {
+  try {
+    await AsyncStorage.setItem('activeWorkout', JSON.stringify(information));
+  } catch (error) {
+    console.error('Error storing data in array', error);
+  }
+};
+
+const storeSessionInstance = async sessionInstance => {
+  try {
+    const jsonValue = await AsyncStorage.getItem('sessions');
+    let dataArray = jsonValue != null ? JSON.parse(jsonValue) : [];
+    dataArray.push(sessionInstance);
+    await AsyncStorage.setItem('sessions', JSON.stringify(dataArray));
+  } catch (error) {
+    console.error('Error storing data in array', error);
+  }
+};
+
 export {
   setStoreExercise,
   clearStorage,
   storeTemplate,
   clearKey,
   checkIfPresent,
+  storeExercise,
+  setActiveWorkoutState,
+  storeSessionInstance,
 };

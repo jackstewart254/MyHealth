@@ -6,6 +6,7 @@ import {QueryClient, QueryClientProvider} from '@tanstack/react-query';
 import 'react-native-url-polyfill/auto';
 import {WorkoutTrackerProvider} from './contexts/workoutTracker';
 import {setStoreExercise} from './localStorage/insert';
+import {fetchActiveWorkout} from './localStorage/fetch';
 
 const queryClient = new QueryClient();
 
@@ -27,8 +28,6 @@ const App = () => {
       unsubscribe();
     };
   }, []);
-
-  useEffect(() => {}, [connectionType, isConnected]);
 
   return (
     <QueryClientProvider client={queryClient}>

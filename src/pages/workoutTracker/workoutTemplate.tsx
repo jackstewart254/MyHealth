@@ -28,10 +28,19 @@ import Animated, {
 } from 'react-native-reanimated';
 import {format} from 'date-fns/format';
 import {getExercise, getTemplates} from '../../../localStorage/fetch';
-import {checkIfPresent, storeTemplate} from '../../../localStorage/insert';
+import {
+  checkIfPresent,
+  setActiveWorkoutState,
+  setStoreExercise,
+  storeExercise,
+  storeSessionInstance,
+  storeTemplate,
+} from '../../../localStorage/insert';
+import {differenceInMinutes} from 'date-fns';
+import AddExerciseModal from './addExerciseModal';
+import Duration from './durationComponent';
 
 const CreateWorkout = () => {
-  let exerciseTemplate = {name: '', sets: []};
   const [exerciseArr, setExerciseArr] = useState([]);
   const [set, setSet] = useState([]);
   const [exercises, setExercises] = useState([]);
@@ -40,35 +49,66 @@ const CreateWorkout = () => {
   const [addExerciseModal, setAddExerciseModal] = useState(false);
   const [closeAddExerciseModal, setCloseAddExerciseModal] = useState(false);
   const [edit, setEdit] = useState(false);
-  const [template, setTemplate] = useState({
-    name: '',
-    exercises: [],
-    sets: [],
-    date: '',
-    duration: 0,
-    id: 0,
-    session_num: 0,
-  });
+  const [template, setTemplate] = useState('');
   const [close, setClose] = useState(false);
 
   useEffect(() => {
-    handleGetExercise();
-  }, []);
+    if (workoutTracker.newExercise === true) {
+      setWorkoutTracker({...workoutTracker, newExercise: false});
+    }
+  }, [workoutTracker.newExercise]);
+
+  useEffect(() => {
+    console.log(set);
+    setActiveWorkoutState({
+      ongoing: true,
+      startTime: workoutTracker.activeWorkoutStartTime,
+      template: {
+        name: template,
+        exercises: exerciseArr,
+        sets: set,
+        date: '',
+        duration: 0,
+        id: workoutTracker.activeWorkoutTemplate.id,
+        session_num: 0,
+      },
+    });
+  }, [set, exerciseArr, template]);
+
+  useEffect(() => {
+    if (workoutTracker.activeWorkout === true) {
+      setExerciseArr(workoutTracker.activeWorkoutTemplate.exercises);
+      const sortedSets = workoutTracker.activeWorkoutTemplate.sets.sort(
+        (a, b) => {
+          // Compare the created_at dates
+          return new Date(a.created_at) - new Date(b.created_at);
+        },
+      );
+      setSet(sortedSets);
+      setTemplate(workoutTracker.activeWorkoutTemplate.name);
+      setActiveWorkoutState({
+        ongoing: true,
+        startTime: workoutTracker.activeWorkoutStartTime,
+        template: workoutTracker.activeWorkoutTemplate,
+      });
+    }
+  }, [workoutTracker.activeWorkout]);
+
+  useEffect(() => {
+    workoutTracker;
+  });
 
   useEffect(() => {
     if (workoutTracker.slideView === 'edit') {
-      setTemplate({
-        ...template,
-        name: workoutTracker.currentTemplate.name,
-        id: workoutTracker.currentTemplate.id,
-      });
+      setTemplate(workoutTracker.currentTemplate.name);
       setExerciseArr(workoutTracker.currentTemplate.exercises);
-      setSet(workoutTracker.currentTemplate.sets);
+      const sortedSets = workoutTracker.currentTemplate.sets.sort((a, b) => {
+        // Compare the created_at dates
+        return new Date(a.created_at) - new Date(b.created_at);
+      });
+      setSet(sortedSets);
     }
-    if (
-      workoutTracker.slideView === 'create' ||
-      workoutTracker.slideView === 'active'
-    ) {
+    if (workoutTracker.slideView === 'create') {
       setExerciseArr([]);
       setSet([]);
       setTemplateName('');
@@ -78,31 +118,23 @@ const CreateWorkout = () => {
   useEffect(() => {
     const exercise = workoutTracker.exercise;
     let isPresent = false;
-    if (exercise) {
+    if (exercise.id > 0) {
       for (let i = 0; i < exerciseArr.length; i++) {
-        if (exercise === exerciseArr[i].name) {
+        if (exercise.id === exerciseArr[i].id) {
           isPresent = true;
         }
       }
       if (isPresent === false) {
-        const exerciseTemplate = {
-          id: exerciseArr.length + 1,
-          name: workoutTracker.exercise,
-        };
-
-        setExerciseArr(prevArr => [...prevArr, exerciseTemplate]);
-        setWorkoutTracker({...workoutTracker, exercise: ''});
+        setExerciseArr(prevArr => [...prevArr, workoutTracker.exercise]);
+        setWorkoutTracker({...workoutTracker, exercise: {id: 0, name: ''}});
+      } else {
+        setWorkoutTracker({...workoutTracker, exercise: {id: 0, name: ''}});
       }
     }
   }, [workoutTracker.exercise]);
 
   const setTemplateName = (name: string) => {
-    setTemplate({...template, name: name});
-  };
-
-  const handleGetExercise = async () => {
-    const res = await getExercise('exercise');
-    setExercises(res);
+    setTemplate(name);
   };
 
   const generateRandomID = () => {
@@ -118,8 +150,8 @@ const CreateWorkout = () => {
     let setObject = {
       id: val,
       exercise_id: id,
-      weight: 0,
-      reps: 0,
+      weight: '',
+      reps: '',
       created_at: format(new Date(), 'hh:mm:ss'),
       isComplete: false,
     };
@@ -134,52 +166,54 @@ const CreateWorkout = () => {
   };
 
   const updateArrayElementWeight = (id: number, weight: string) => {
-    const numericValue = weight === '' ? 0 : parseInt(weight, 10);
+    const numericValue = weight === '' ? '' : parseInt(weight, 10);
     if (isNaN(numericValue)) {
       return;
     }
-    let filteredArray = set.filter(item => item.id !== id);
-    let elementToManipulate = set.find(item => item.id === id);
-    if (elementToManipulate) {
-      elementToManipulate.weight = numericValue; // Update with the numeric value
-    }
 
-    let newArray = [...filteredArray, elementToManipulate];
-    newArray.sort((a, b) => {
-      return (
-        new Date(`1970-01-01T${a.created_at}Z`) -
-        new Date(`1970-01-01T${b.created_at}Z`)
-      );
-    });
-
-    setSet(newArray);
+    setSet(prevSets =>
+      prevSets.map(set =>
+        set.id === id ? {...set, weight: numericValue} : set,
+      ),
+    );
   };
 
   const handleIsFinished = (id: number) => {
-    let filteredArray = set.filter(item => item.id !== id);
-    let elementToManipulate = set.find(item => item.id === id);
-    if (elementToManipulate) {
-      elementToManipulate.isFinished = !elementToManipulate.isFinished;
-    }
-    console.log(elementToManipulate.isFinished);
-    let newArray = [...filteredArray, elementToManipulate];
-    newArray.sort((a, b) => {
-      return (
-        new Date(`1970-01-01T${a.created_at}Z`) -
-        new Date(`1970-01-01T${b.created_at}Z`)
-      );
-    });
+    if (edit === true) {
+      removeElement(id);
+    } else {
+      // Use map to create a new array with the updated element
+      const newArray = set.map(item => {
+        if (item.id === id) {
+          // Return a new object with the updated isFinished value
+          return {
+            ...item,
+            isFinished: !item.isFinished,
+          };
+        }
+        return item;
+      });
 
-    setSet(newArray);
+      // Sort the new array based on the created_at date
+      newArray.sort((a, b) => {
+        return (
+          new Date(`1970-01-01T${a.created_at}Z`) -
+          new Date(`1970-01-01T${b.created_at}Z`)
+        );
+      });
+
+      // Update the state with the sorted array
+      setSet(newArray);
+    }
   };
 
   const handleSavingWorkout = async () => {
     const genId = generateRandomID();
-    if (template.name.length < 1) {
+    if (template.length < 1) {
       console.error("Error: Can't save a template without a name");
     } else {
       const obj = {
-        name: template.name,
+        name: template,
         exercises: exerciseArr,
         sets: set,
         date: '',
@@ -208,26 +242,15 @@ const CreateWorkout = () => {
     }
   };
 
-  const updateArrayElementReps = (id: number, reps: string) => {
-    const numericValue = reps === '' ? 0 : parseInt(reps, 10);
+  const updateArrayElementReps = (id: number, weight: string) => {
+    const numericValue = weight === '' ? '' : parseInt(weight, 10);
     if (isNaN(numericValue)) {
       return;
     }
-    let filteredArray = set.filter(item => item.id !== id);
-    let elementToManipulate = set.find(item => item.id === id);
-    if (elementToManipulate) {
-      elementToManipulate.reps = numericValue; // Update with the numeric value
-    }
 
-    let newArray = [...filteredArray, elementToManipulate];
-    newArray.sort((a, b) => {
-      return (
-        new Date(`1970-01-01T${a.created_at}Z`) -
-        new Date(`1970-01-01T${b.created_at}Z`)
-      );
-    });
-
-    setSet(newArray);
+    setSet(prevSets =>
+      prevSets.map(set => (set.id === id ? {...set, reps: numericValue} : set)),
+    );
   };
 
   const handleClose = () => {
@@ -252,7 +275,8 @@ const CreateWorkout = () => {
             opacity: 0.3,
             width: '100%',
             height: '100%',
-          }}></View>
+          }}
+        />
         <View
           style={{
             position: 'absolute',
@@ -311,9 +335,18 @@ const CreateWorkout = () => {
     setSet(newList);
   };
 
+  const handleDeleteExercise = id => {
+    const filter = exerciseArr.filter(e => id !== e.id);
+    const sets = set.filter(s => id !== s.exercise_id);
+    // console.log(id, filter);
+    setSet(sets);
+    setExerciseArr(filter);
+  };
+
   const renderExercises = ({item, index}: {item: object; index: number}) => {
     const setsForExercise =
       set.filter(setObject => setObject.exercise_id === item.id) || [];
+    console.log(item.id, item.name);
     return (
       <View style={{flexDirection: 'column', paddingBottom: 10}}>
         <View
@@ -321,10 +354,15 @@ const CreateWorkout = () => {
             flexDirection: 'row',
             width: '100%',
             justifyContent: 'space-between',
+            paddingVertical: 10,
           }}>
-          <Text style={[styles.blueSemiboldSF, {paddingVertical: 10}]}>
-            {item.name}
-          </Text>
+          <Text style={[styles.blueSemiboldSF]}>{item.name}</Text>
+          <TouchableOpacity
+            onPress={() => {
+              handleDeleteExercise(item.id);
+            }}>
+            <Text style={[styles.redSemiboldSF]}>Delete</Text>
+          </TouchableOpacity>
         </View>
 
         <View
@@ -390,7 +428,7 @@ const CreateWorkout = () => {
         {setsForExercise.map((set, index) => {
           return (
             <View
-              key={index}
+              key={set.id}
               style={{
                 width: '100%',
                 flexDirection: 'row',
@@ -429,12 +467,19 @@ const CreateWorkout = () => {
                   justifyContent: 'center',
                 }}>
                 <TextInput
-                  style={[styles.medSF, {fontSize: 14}]}
+                  placeholder={'0'}
+                  placeholderTextColor={'white'}
+                  style={[
+                    styles.medSF,
+                    {fontSize: 14, width: '100%', textAlign: 'center'},
+                  ]}
+                  keyboardType="numeric"
+                  value={String(set.weight)}
                   onChangeText={text => {
                     updateArrayElementWeight(set.id, text);
-                  }}>
-                  {set.weight}
-                </TextInput>
+                  }}
+                  selectTextOnFocu
+                />
               </View>
               <View
                 style={{
@@ -446,14 +491,19 @@ const CreateWorkout = () => {
                   justifyContent: 'center',
                 }}>
                 <TextInput
+                  placeholder={'0'}
+                  placeholderTextColor={'white'}
                   keyboardType="numeric"
-                  value={set.reps}
+                  value={String(set.reps)}
                   onChangeText={text => {
                     updateArrayElementReps(set.id, text);
                   }}
-                  style={[styles.medSF, {fontSize: 14}]}>
-                  {set.reps}
-                </TextInput>
+                  style={[
+                    styles.medSF,
+                    {fontSize: 14, width: '100%', textAlign: 'center'},
+                  ]}
+                  selectTextOnFocus
+                />
               </View>
               {workoutTracker.slideView === 'active' ? (
                 <TouchableOpacity
@@ -472,7 +522,11 @@ const CreateWorkout = () => {
                     alignItems: 'center',
                     justifyContent: 'center',
                   }}>
-                  <Tick />
+                  {edit ? (
+                    <Cross width={12} height={12} color="#24262E" />
+                  ) : (
+                    <Tick />
+                  )}
                 </TouchableOpacity>
               ) : (
                 <TouchableOpacity
@@ -517,21 +571,12 @@ const CreateWorkout = () => {
 
   const handleCloseButton = () => {
     const view = workoutTracker.slideView;
-    console.log('pressed');
     if (view === 'edit' || view === 'create') {
       setWorkoutTracker({...workoutTracker, closeSlide: true});
-      setTemplate({
-        name: '',
-        exercises: [],
-        sets: [],
-        date: '',
-        duration: 0,
-        id: 0,
-        session_num: 0,
-      });
+      setTemplate('');
     }
     if (view === 'active') {
-      console.log('active');
+      setWorkoutTracker({...workoutTracker, closeSlide: true});
     }
   };
 
@@ -545,10 +590,10 @@ const CreateWorkout = () => {
         position: 'relative',
         justifyContent: 'space-between',
       }}>
+      {/* <View
+        style={{height: 300, width: '100%', backgroundColor: 'blue'}}></View> */}
       {close === true && closeButton()}
-      {workoutTracker.animateAddExercise === true && (
-        <AddExerciseModal exercises={exercises} />
-      )}
+      {workoutTracker.animateAddExercise === true && <AddExerciseModal />}
       <ScrollView
         style={{paddingLeft: 20, paddingRight: 20, paddingTop: 10}}
         showsVerticalScrollIndicator={false}>
@@ -566,7 +611,7 @@ const CreateWorkout = () => {
             onChangeText={val => {
               setTemplateName(val);
             }}
-            value={template.name}
+            value={template}
             style={[
               {
                 paddingTop: 10,
@@ -574,14 +619,14 @@ const CreateWorkout = () => {
                 width: 260,
                 fontSize: 16,
                 color: 'white',
-                opacity: template.name.length > 0 ? 1 : 0.5,
+                opacity: template.length > 0 ? 1 : 0.5,
               },
               styles.semiboldSF,
             ]}
           />
           <TouchableOpacity
             onPress={() => {
-              handleCloseButton;
+              handleCloseButton();
             }}
             style={{paddingTop: 10, paddingBottom: 10, paddingLeft: 10}}>
             {workoutTracker.slideView === 'active' ? (
@@ -591,20 +636,37 @@ const CreateWorkout = () => {
             )}
           </TouchableOpacity>
         </View>
-        {workoutTracker.slideView === 'active' && (
-          <TouchableOpacity
-            onPress={() => {
-              setEdit(!edit);
-            }}>
-            <Text
-              style={[
-                styles.redSemiboldSF,
-                {width: '100%', textAlign: 'right', fontSize: 16},
-              ]}>
-              Edit
-            </Text>
-          </TouchableOpacity>
-        )}
+        <View
+          style={{
+            flexDirection: 'row',
+            width: '100%',
+            justifyContent: 'space-between',
+          }}>
+          <Duration
+            startTime={workoutTracker.activeWorkoutStartTime}
+            color={'white'}
+          />
+          {workoutTracker.slideView === 'active' && exerciseArr.length > 0 && (
+            <TouchableOpacity
+              onPress={() => {
+                setEdit(!edit);
+              }}>
+              <Text
+                style={[
+                  styles.redSemiboldSF,
+                  {
+                    width: '100%',
+                    textAlign: 'right',
+                    fontSize: 16,
+                    marginBottom: 10,
+                  },
+                ]}>
+                Edit
+              </Text>
+            </TouchableOpacity>
+          )}
+        </View>
+
         <View style={{paddingBottom: 40}}>
           <FlatList
             scrollEnabled={false}
@@ -627,20 +689,55 @@ const CreateWorkout = () => {
             Add exercise
           </Text>
         </TouchableOpacity>
-        <TouchableOpacity
-          onPress={toggleModal}
-          style={{
-            alignItems: 'center',
-            justifyContent: 'center',
-            width: '100%',
-            backgroundColor: '#FF2A00',
-            borderRadius: 5,
-            marginBottom: 70,
-          }}>
-          <Text style={[{fontSize: 15, paddingVertical: 10}, styles.medSF]}>
-            End workout
-          </Text>
-        </TouchableOpacity>
+        {workoutTracker.slideView === 'active' && (
+          <TouchableOpacity
+            onPress={() => {
+              setActiveWorkoutState({
+                ongoing: false,
+                startTime: '',
+                templateID: {
+                  name: '',
+                  exercises: [],
+                  sets: [],
+                  date: '',
+                  duration: 0,
+                  template_id: workoutTracker.activeWorkoutTemplate.id,
+                  id: generateRandomID(),
+                },
+              });
+              storeSessionInstance({
+                name: template,
+                exercises: exerciseArr,
+                sets: set,
+                date: workoutTracker.activeWorkoutStartTime,
+                duration: differenceInMinutes(
+                  new Date(),
+                  workoutTracker.activeWorkoutStartTime,
+                ),
+                template_id: workoutTracker.activeWorkoutTemplate.id,
+                id: generateRandomID(),
+              });
+              setWorkoutTracker({
+                ...workoutTracker,
+                activeWorkout: false,
+                activeWorkoutTemplate: 0,
+                activeWorkoutStartTime: '',
+                closeSlide: true,
+              });
+            }}
+            style={{
+              alignItems: 'center',
+              justifyContent: 'center',
+              width: '100%',
+              backgroundColor: '#FF2A00',
+              borderRadius: 5,
+              marginBottom: 70,
+            }}>
+            <Text style={[{fontSize: 15, paddingVertical: 10}, styles.medSF]}>
+              End workout
+            </Text>
+          </TouchableOpacity>
+        )}
       </ScrollView>
       {workoutTracker.slideView !== 'active' && (
         <TouchableOpacity
@@ -657,154 +754,6 @@ const CreateWorkout = () => {
         </TouchableOpacity>
       )}
     </View>
-  );
-};
-
-const AddExerciseModal = ({exercises}: {exercises: Array<Object>}) => {
-  const [exerciseVal, setExerciseVal] = useState('');
-  const opacity = useSharedValue(0);
-  const {workoutTracker, setWorkoutTracker} = useWorkoutTracker();
-  const [animationToggle, setAnimationToggle] = useState(false);
-  const [close, setClose] = useState(false);
-
-  useEffect(() => {
-    if (workoutTracker.animateAddExercise === true) {
-      opacity.value = withTiming(1, {duration: 200});
-    }
-  }, [workoutTracker.animateAddExercise]);
-
-  useEffect(() => {
-    if (close === true) {
-      opacity.value = withTiming(0, {duration: 200});
-      const timer = setTimeout(() => {
-        setWorkoutTracker({...workoutTracker, animateAddExercise: false});
-      }, 200);
-      setClose(false);
-    }
-  }, [close]);
-
-  const handleAddExercise = ({name}: {name: string}) => {
-    setWorkoutTracker({...workoutTracker, exercise: name});
-    setClose(true);
-  };
-
-  const animatedOpacity = useAnimatedStyle(() => {
-    return {
-      opacity: opacity.value,
-    };
-  });
-
-  return (
-    <Animated.View
-      style={[
-        {
-          position: 'absolute',
-          zIndex: 3,
-          width: width * 0.85,
-          height: height * 0.44,
-          backgroundColor: '#24262E',
-          borderRadius: 10,
-          borderWidth: 1,
-          borderColor: 'white',
-          flexDirection: 'column',
-          paddingVertical: 10,
-          bottom: height / 2 - (height * 0.44) / 2,
-          // top: (height * 0.44) / 2,
-          // bottom: height / 4,
-          left: width / 2 - (width * 0.85) / 2,
-        },
-        animatedOpacity,
-      ]}>
-      <View
-        style={{
-          flexDirection: 'row',
-          width: '100%',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          marginBottom: 10,
-          paddingHorizontal: 10,
-        }}>
-        <Text style={[{fontSize: 16}, styles.blueSFMed]}>New</Text>
-        <TouchableOpacity
-          onPress={() => {
-            setClose(true);
-          }}>
-          <Cross width={14} height={14} color="white" />
-        </TouchableOpacity>
-      </View>
-      <View style={{paddingHorizontal: 10, width: '100%'}}>
-        <TextInput
-          style={[
-            {
-              paddingVertical: 10,
-              paddingHorizontal: 10,
-              color: 'white',
-              width: '100%',
-              backgroundColor: '#353535',
-              borderRadius: 5,
-              fontSize: 14,
-              marginBottom: 20,
-            },
-            styles.medSF,
-          ]}
-          placeholder="Search"
-          placeholderTextColor={'white'}
-          value={exerciseVal}
-          onChangeText={text => {
-            setExerciseVal(text);
-          }}
-        />
-      </View>
-
-      {/* <Text
-        style={[
-          styles.medSF,
-          {fontSize: 14, paddingLeft: 10, paddingBottom: 10},
-        ]}>
-        Recent
-      </Text> */}
-      <View
-        style={{
-          width: '100%',
-          height: 1,
-          backgroundColor: '#D9D9D9',
-        }}
-      />
-      <ScrollView style={{flexDirection: 'column', paddingHorizontal: 10}}>
-        {exercises?.map((item, index) => (
-          <TouchableOpacity
-            onPress={() => {
-              handleAddExercise({name: item.name});
-            }}
-            key={index}
-            style={{
-              alignItems: 'flex-start',
-              justifyContent: 'center',
-              // paddingVertical: 10,
-            }}>
-            <Text
-              style={[
-                {
-                  fontSize: 14,
-                  lineHeight: 14,
-                  paddingVertical: 14,
-                },
-                styles.medSF,
-              ]}>
-              {item.name}
-            </Text>
-            <View
-              style={{
-                width: '100%',
-                height: 1,
-                backgroundColor: '#D9D9D9',
-                borderRadius: 20,
-              }}
-            />
-          </TouchableOpacity>
-        ))}
-      </ScrollView>
-    </Animated.View>
   );
 };
 

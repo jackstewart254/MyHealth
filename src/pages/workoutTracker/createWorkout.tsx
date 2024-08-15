@@ -45,13 +45,18 @@ const CreateWorkoutTemplate = () => {
   useEffect(() => {
     const slide = workoutTracker.animateSlide;
     const closeSlide = workoutTracker.closeSlide;
+    const activeSlide = workoutTracker.activeSlide;
     if (slide === true) {
       translateY.value = withTiming(0, {duration: 300});
     }
     if (closeSlide === true) {
       translateY.value = withTiming(height, {duration: 300});
     }
-  }, [workoutTracker.animateSlide, workoutTracker.closeSlide]);
+  }, [
+    workoutTracker.animateSlide,
+    workoutTracker.closeSlide,
+    workoutTracker.activeSlide,
+  ]);
 
   return (
     <Animated.View

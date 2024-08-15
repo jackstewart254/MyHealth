@@ -30,4 +30,15 @@ const getTemplates = async key => {
   //   }
 };
 
-export {getExercise, getTemplates};
+const fetchActiveWorkout = async () => {
+  const res = await AsyncStorage.getItem('activeWorkout');
+  return res;
+};
+
+const fetchSessions = async () => {
+  const res = await AsyncStorage.getItem('sessions');
+  const data = res != null ? JSON.parse(res) : [];
+  return data;
+};
+
+export {getExercise, getTemplates, fetchActiveWorkout, fetchSessions};

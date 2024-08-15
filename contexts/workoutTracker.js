@@ -5,7 +5,7 @@ const WorkoutTracker = createContext();
 
 export const WorkoutTrackerProvider = ({ children }) => {
   const [workoutTracker, setWorkoutTracker] = useState({
-    exercise: '',
+    exercise: {id: 0, name: ''},
     animateAddExercise: false,
     animateSlide: false,
     closeSlide: false,
@@ -20,6 +20,19 @@ export const WorkoutTrackerProvider = ({ children }) => {
       id: 0,
       session_num: 0,
     },
+    activeSlide: false,
+    newExercise: false,
+    activeWorkout: false,
+    activeWorkoutTemplate: {
+      name: '',
+      exercises: [],
+      sets: [],
+      date: '',
+      duration: 0,
+      id: 0,
+      session_num: 0,
+    },
+    activeWorkoutStartTime: "",
   });
 
   return (
