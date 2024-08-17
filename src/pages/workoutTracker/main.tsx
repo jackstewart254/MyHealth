@@ -35,6 +35,11 @@ import {
   differenceInMinutes,
   differenceInSeconds,
 } from 'date-fns';
+import {
+  Cross,
+  HomeEmpty,
+  HomeFilled,
+} from '../../../assets/svgs/workoutTrackerSvgs';
 
 const height = Dimensions.get('screen').height;
 const width = Dimensions.get('screen').width;
@@ -91,6 +96,10 @@ const MainWorkoutTracker = () => {
   const [slideView, setSlideView] = useState(0);
   const translateX = useSharedValue(0);
   const transX = useSharedValue(0);
+  const [showSession, setShowSession] = useState(false);
+  const [sessionObj, setSessionObj] = useState();
+  const [closeSummary, setCloseSummary] = useState(false);
+  const [edit, setEdit] = useState(false);
 
   const animatedSlide = useAnimatedStyle(() => {
     return {
@@ -123,10 +132,6 @@ const MainWorkoutTracker = () => {
 
     handleSessions();
   }, []);
-
-  useEffect(() => {
-    console.log('sessions', sessions[0]);
-  }, [sessions]);
 
   useEffect(() => {
     fetchActiveWorkout();
@@ -184,6 +189,17 @@ const MainWorkoutTracker = () => {
   }, [workoutTracker.newWorkout]);
 
   useEffect(() => {
+    if (closeSummary === true) {
+      setCloseSummary(false);
+      setWorkoutTracker({
+        ...workoutTracker,
+        showWorkoutComplete: false,
+        activeWorkoutTemplate: {},
+      });
+    }
+  }, [closeSummary]);
+
+  useEffect(() => {
     if (templatePopup.id > 0) {
       opacity.value = withTiming(1, {duration: 200});
     }
@@ -235,21 +251,52 @@ const MainWorkoutTracker = () => {
     // }
   };
 
-  const renderSessions = ({item}) => (
-    <View>
-      <Text>{item.name}</Text>
-    </View>
-  );
+  const handleSessionPress = session => {
+    setSessionObj(session);
+    setShowSession(true);
+  };
+
+  const renderSessions = ({item}) => {
+    return (
+      <TouchableOpacity
+        onPress={() => {
+          handleSessionPress(item);
+        }}
+        style={{
+          padding: 10,
+          borderRadius: 10,
+          borderColor: 'white',
+          borderWidth: 1,
+          marginBottom: 10,
+        }}>
+        <Text style={[styles.medSF, {fontSize: 16}]}>{item.name}</Text>
+        {item.exercises.map((exercise, eIndex) => {
+          const setLength = item.sets.filter(
+            set => exercise.id === set.exercise_id,
+          );
+          return (
+            <Text
+              style={[styles.regSF, {paddingTop: 5, fontSize: 14}]}
+              key={exercise.id}>
+              {setLength.length} {' x '} {exercise.name}
+            </Text>
+          );
+        })}
+      </TouchableOpacity>
+    );
+  };
+
+  const handleDelete = item => {};
 
   const renderWorkouts = ({item}) => (
     <TouchableOpacity
       onPress={() => {
-        handleSetPopupModal(item);
+        edit ? handleDelete(item) : handleSetPopupModal(item);
       }}
       style={{
         padding: 10,
         borderRadius: 10,
-        borderColor: 'white',
+        borderColor: edit ? 'red' : 'white',
         borderWidth: 1,
         marginBottom: 10,
       }}>
@@ -263,6 +310,227 @@ const MainWorkoutTracker = () => {
       ))}
     </TouchableOpacity>
   );
+
+  const workoutSummary = () => {
+    const session = workoutTracker.activeWorkoutTemplate;
+    const sets = session.sets;
+    let totalWeight;
+    for (let i = 0; i < sets; i++) {
+      totalWeight += parseInt(sets.weight, 10);
+      console.log(sets[i]);
+    }
+    return (
+      <View
+        style={{
+          width: width,
+          height: height,
+          zIndex: 1,
+          alignItems: 'center',
+          justifyContent: 'center',
+          position: 'absolute',
+        }}>
+        <Pressable
+          onPress={() => {
+            setCloseSummary(true);
+          }}
+          style={{
+            width: '100%',
+            height: '100%',
+            backgroundColor: 'black',
+            opacity: 0.5,
+          }}
+        />
+        <View
+          style={{
+            backgroundColor: '#24262E',
+            borderRadius: 10,
+            borderColor: 'white',
+            borderWidth: 1,
+            position: 'absolute',
+            zIndex: 2,
+            padding: 10,
+            flexDirection: 'column',
+            alignItems: 'center',
+          }}>
+          <Text style={[styles.medSF, {fontSize: 14, paddingBottom: 5}]}>
+            Well done Fat Shit!
+          </Text>
+          <Text style={[styles.medSF, {fontSize: 14}]}>
+            Here is the workout summary
+          </Text>
+          <Text>{workoutTracker.activeWorkoutTemplate.name}</Text>
+          <Text style={[styles.medSF, {fontSize: 14, paddingBottom: 5}]}>
+            {totalWeight}
+          </Text>
+        </View>
+      </View>
+    );
+  };
+
+  const sessionReviewModal = () => {
+    const session = sessionObj;
+    return (
+      <View
+        style={{
+          width: width,
+          height: height,
+          position: 'absolute',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 1,
+        }}>
+        <View
+          style={{
+            width: '100%',
+            height: '100%',
+            backgroundColor: 'black',
+            opacity: 0.5,
+            zIndex: 1,
+          }}
+        />
+        <View
+          style={{
+            position: 'absolute',
+            zIndex: 2,
+            backgroundColor: '#24262E',
+            borderWidth: 1,
+            borderColor: 'white',
+            borderRadius: 10,
+            padding: 10,
+            flexDirection: 'column',
+          }}>
+          <View
+            style={{
+              flexDirection: 'row',
+              justifyContent: 'space-between',
+            }}>
+            <Text style={[styles.medSF, {fontSize: 16, marginBottom: 20}]}>
+              {sessionObj.name}{' '}
+              <Text style={{fontSize: 14, color: '#00B0FF'}}>
+                {session.date.length > 0 && format(session.date, 'dd/MM/yy')}
+              </Text>
+            </Text>
+            <TouchableOpacity
+              onPress={() => {
+                setShowSession(false);
+              }}>
+              <Cross width={12} height={12} color={'white'} />
+            </TouchableOpacity>
+          </View>
+          {session.exercises.map((exercise, index) => {
+            const set = session.sets.filter(
+              set => exercise.id === set.exercise_id,
+            );
+            return (
+              <View
+                key={exercise.id}
+                style={{flexDirection: 'column', marginBottom: 20}}>
+                <Text
+                  style={[
+                    styles.nativeBlueSFMed,
+                    {fontSize: 14, marginBottom: 10},
+                  ]}>
+                  {exercise.name}
+                </Text>
+                <View
+                  style={{
+                    flexDirection: 'row',
+                    marginBottom: 5,
+                    marginLeft: 10,
+                  }}>
+                  <Text
+                    style={[
+                      {
+                        width: 26,
+                        fontSize: 14,
+                        marginRight: 10,
+                        textAlign: 'center',
+                      },
+                      styles.medSF,
+                    ]}>
+                    Set
+                  </Text>
+                  <Text
+                    style={[
+                      {
+                        width: 45,
+                        fontSize: 14,
+                        marginRight: 10,
+                        textAlign: 'center',
+                      },
+                      styles.medSF,
+                    ]}>
+                    kg
+                  </Text>
+                  <Text
+                    style={[
+                      {
+                        width: 40,
+                        fontSize: 14,
+                        marginRight: 10,
+                        textAlign: 'center',
+                      },
+                      styles.medSF,
+                    ]}>
+                    reps
+                  </Text>
+                </View>
+                {set.map((set, sIndex) => {
+                  return (
+                    <View key={set.id}>
+                      <View
+                        style={{
+                          flexDirection: 'row',
+                          marginBottom: 5,
+                          marginLeft: 10,
+                        }}>
+                        <Text
+                          style={[
+                            {
+                              width: 26,
+                              fontSize: 14,
+                              marginRight: 10,
+                              textAlign: 'center',
+                            },
+                            styles.medSF,
+                          ]}>
+                          {sIndex + 1}
+                        </Text>
+                        <Text
+                          style={[
+                            {
+                              width: 45,
+                              fontSize: 14,
+                              marginRight: 10,
+                              textAlign: 'center',
+                            },
+                            styles.medSF,
+                          ]}>
+                          {set.weight}
+                        </Text>
+                        <Text
+                          style={[
+                            {
+                              width: 40,
+                              fontSize: 14,
+                              marginRight: 10,
+                              textAlign: 'center',
+                            },
+                            styles.medSF,
+                          ]}>
+                          {set.reps}
+                        </Text>
+                      </View>
+                    </View>
+                  );
+                })}
+              </View>
+            );
+          })}
+        </View>
+      </View>
+    );
+  };
 
   const workoutModal = () => {
     return (
@@ -378,21 +646,70 @@ const MainWorkoutTracker = () => {
         backgroundColor: '#24262E',
         flexDirection: 'column',
         position: 'relative',
+        overflow: 'hidden',
         // alignItems: 'center',
       }}>
+      {/* <View
+        style={{
+          position: 'absolute',
+          width: width,
+          height: 60,
+          bottom: 30,
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 1,
+        }}>
+        <TouchableOpacity
+          onPress={() => {
+            setWorkoutTracker({...workoutTracker, close: true});
+          }}
+          style={{
+            width: 60,
+            height: 60,
+            backgroundColor: '#E5D120',
+            borderRadius: 20,
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}>
+          <HomeFilled />
+        </TouchableOpacity>
+      </View> */}
+      {workoutTracker.showWorkoutComplete && workoutSummary()}
+      {showSession && sessionReviewModal()}
       {showWorkoutModal === true && workoutModal()}
       <View style={{height: height * 0.05}} />
-      <Text
-        style={[
-          styles.medSF,
-          {
-            paddingHorizontal: 20,
-            fontSize: 20,
-            paddingTop: 20,
-          },
-        ]}>
-        Start workout
-      </Text>
+      <View
+        style={{
+          width: '100%',
+          flexDirection: 'row',
+          justifyContent: 'space-between',
+          paddingHorizontal: 20,
+          alignItems: 'center',
+          paddingTop: 20,
+        }}>
+        <Text
+          style={[
+            styles.medSF,
+            {
+              fontSize: 20,
+            },
+          ]}>
+          Start workout
+        </Text>
+        <TouchableOpacity
+          onPress={() => {
+            setEdit(!edit);
+          }}>
+          <Text
+            style={{
+              fontFamily: 'SFUIText-Medium',
+              fontSize: 16,
+              color: '#00B0FF',
+            }}>
+            Edit
+          </Text>
+        </TouchableOpacity>
+      </View>
       <Text
         style={[
           styles.medSF,
@@ -550,20 +867,20 @@ const MainWorkoutTracker = () => {
           showsVerticalScrollIndicator={false}
           contentContainerStyle={{
             flexDirection: 'row',
-            paddingBottom: 60,
             width: width,
             paddingHorizontal: 20,
-            height: '100%',
+            // height: '100%',
+            paddingBottom: 300,
           }}
           style={{width: width}}>
           {/* First List */}
           <View style={{width: '50%', paddingRight: 5}}>
-            {sessions.map((item, index) => (
+            {/* {sessions.map((item, index) => (
               <View key={index}>
-                <Text>{JSON.stringify(item.name)}</Text>
+                <Text>{item.name}</Text>
               </View>
-            ))}
-            {/* <FlatList
+            ))} */}
+            <FlatList
               data={sessions.filter((_, index) => index % 2 === 0)}
               renderItem={renderSessions}
               keyExtractor={item => item.id.toString()}
@@ -576,7 +893,7 @@ const MainWorkoutTracker = () => {
               renderItem={renderSessions}
               keyExtractor={(item, index) => index.toString()}
               scrollEnabled={false} // Disable individual scrolling
-            /> */}
+            />
           </View>
         </ScrollView>
       </Animated.View>

@@ -55,6 +55,10 @@ const AddExerciseModal = () => {
   }, [workoutTracker.animateAddExercise]);
 
   useEffect(() => {
+    handleGetExercise();
+  }, [workoutTracker.newExercise]);
+
+  useEffect(() => {
     if (close === true) {
       opacity.value = withTiming(0, {duration: 200});
       const timer = setTimeout(() => {

@@ -33,6 +33,9 @@ export const WorkoutTrackerProvider = ({ children }) => {
       session_num: 0,
     },
     activeWorkoutStartTime: "",
+    showWorkoutComplete: false,
+    view: 'home',
+    close: false,
   });
 
   return (

@@ -7,6 +7,8 @@ import 'react-native-url-polyfill/auto';
 import {WorkoutTrackerProvider} from './contexts/workoutTracker';
 import {setStoreExercise} from './localStorage/insert';
 import {fetchActiveWorkout} from './localStorage/fetch';
+import Navigation from './src/navigation/navigation';
+import {GestureHandlerRootView} from 'react-native-gesture-handler';
 
 const queryClient = new QueryClient();
 
@@ -31,11 +33,12 @@ const App = () => {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <View style={{flex: 1}}>
-        <WorkoutTrackerProvider>
+      <WorkoutTrackerProvider>
+        <GestureHandlerRootView>
+          {/* <Navigation /> */}
           <MainWorkoutTracker />
-        </WorkoutTrackerProvider>
-      </View>
+        </GestureHandlerRootView>
+      </WorkoutTrackerProvider>
     </QueryClientProvider>
   );
 };

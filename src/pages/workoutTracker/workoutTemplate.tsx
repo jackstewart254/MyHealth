@@ -59,9 +59,8 @@ const CreateWorkout = () => {
   }, [workoutTracker.newExercise]);
 
   useEffect(() => {
-    console.log(set);
     setActiveWorkoutState({
-      ongoing: true,
+      ongoing: workoutTracker.activeWorkout,
       startTime: workoutTracker.activeWorkoutStartTime,
       template: {
         name: template,
@@ -346,7 +345,6 @@ const CreateWorkout = () => {
   const renderExercises = ({item, index}: {item: object; index: number}) => {
     const setsForExercise =
       set.filter(setObject => setObject.exercise_id === item.id) || [];
-    console.log(item.id, item.name);
     return (
       <View style={{flexDirection: 'column', paddingBottom: 10}}>
         <View
@@ -478,7 +476,7 @@ const CreateWorkout = () => {
                   onChangeText={text => {
                     updateArrayElementWeight(set.id, text);
                   }}
-                  selectTextOnFocu
+                  selectTextOnFocus={true}
                 />
               </View>
               <View
@@ -502,7 +500,7 @@ const CreateWorkout = () => {
                     styles.medSF,
                     {fontSize: 14, width: '100%', textAlign: 'center'},
                   ]}
-                  selectTextOnFocus
+                  selectTextOnFocus={true}
                 />
               </View>
               {workoutTracker.slideView === 'active' ? (
@@ -576,7 +574,11 @@ const CreateWorkout = () => {
       setTemplate('');
     }
     if (view === 'active') {
-      setWorkoutTracker({...workoutTracker, closeSlide: true});
+      setWorkoutTracker({
+        ...workoutTracker,
+        closeSlide: true,
+        showWorkoutComplete: true,
+      });
     }
   };
 
@@ -642,10 +644,13 @@ const CreateWorkout = () => {
             width: '100%',
             justifyContent: 'space-between',
           }}>
-          <Duration
-            startTime={workoutTracker.activeWorkoutStartTime}
-            color={'white'}
-          />
+          {workoutTracker.activeWorkout === true && (
+            <Duration
+              startTime={workoutTracker.activeWorkoutStartTime}
+              color={'white'}
+            />
+          )}
+
           {workoutTracker.slideView === 'active' && exerciseArr.length > 0 && (
             <TouchableOpacity
               onPress={() => {
@@ -720,9 +725,10 @@ const CreateWorkout = () => {
               setWorkoutTracker({
                 ...workoutTracker,
                 activeWorkout: false,
-                activeWorkoutTemplate: 0,
+                // activeWorkoutTemplate: 0,
                 activeWorkoutStartTime: '',
                 closeSlide: true,
+                showWorkoutComplete: true,
               });
             }}
             style={{

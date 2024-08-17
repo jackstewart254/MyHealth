@@ -41,4 +41,6 @@ const fetchSessions = async () => {
   return data;
 };
 
+const removeElement = async () => {};
+
 export {getExercise, getTemplates, fetchActiveWorkout, fetchSessions};
