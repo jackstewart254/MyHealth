@@ -20,9 +20,6 @@ const App = () => {
     const unsubscribe = NetInfo.addEventListener(state => {
       setConnectionType(state.type);
       setIsConnected(state.isConnected);
-      if (state.isConnected === true) {
-        setStoreExercise();
-      }
     });
 
     // Cleanup subscription on unmount
@@ -30,6 +27,12 @@ const App = () => {
       unsubscribe();
     };
   }, []);
+
+  useEffect(() => {
+    if (isConnected === true) {
+      setStoreExercise();
+    }
+  }, [isConnected]);
 
   return (
     <QueryClientProvider client={queryClient}>

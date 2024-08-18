@@ -34,6 +34,7 @@ import {
   setStoreExercise,
   storeExercise,
   storeSessionInstance,
+  storeSets,
   storeTemplate,
 } from '../../../localStorage/insert';
 import {differenceInMinutes} from 'date-fns';
@@ -80,7 +81,7 @@ const CreateWorkout = () => {
       const sortedSets = workoutTracker.activeWorkoutTemplate.sets.sort(
         (a, b) => {
           // Compare the created_at dates
-          return new Date(a.created_at) - new Date(b.created_at);
+          return a.order - b.order;
         },
       );
       setSet(sortedSets);
@@ -145,22 +146,22 @@ const CreateWorkout = () => {
   };
 
   const handleAddSet = (id: number) => {
+    const exerciseSet = set.filter(item => id === item.exercise_id);
     const val = generateRandomID();
     let setObject = {
+      session_num: workoutTracker.activeWorkoutTemplate.session_num,
       id: val,
       exercise_id: id,
       weight: '',
       reps: '',
-      created_at: format(new Date(), 'hh:mm:ss'),
-      isComplete: false,
+      order: exerciseSet.length,
+      created_at: new Date(),
+      isFinished: false,
+      distance: '',
+      time: '',
     };
     let newArr = [...set, setObject];
-    newArr.sort((a, b) => {
-      return (
-        new Date(`1970-01-01T${a.created_at}Z`) -
-        new Date(`1970-01-01T${b.created_at}Z`)
-      );
-    });
+    newArr.sort((a, b) => a.order - b.order);
     setSet(newArr);
   };
 
@@ -184,7 +185,6 @@ const CreateWorkout = () => {
       // Use map to create a new array with the updated element
       const newArray = set.map(item => {
         if (item.id === id) {
-          // Return a new object with the updated isFinished value
           return {
             ...item,
             isFinished: !item.isFinished,
@@ -193,15 +193,7 @@ const CreateWorkout = () => {
         return item;
       });
 
-      // Sort the new array based on the created_at date
-      newArray.sort((a, b) => {
-        return (
-          new Date(`1970-01-01T${a.created_at}Z`) -
-          new Date(`1970-01-01T${b.created_at}Z`)
-        );
-      });
-
-      // Update the state with the sorted array
+      newArray.sort((a, b) => a.order - b.order);
       setSet(newArray);
     }
   };
@@ -337,7 +329,6 @@ const CreateWorkout = () => {
   const handleDeleteExercise = id => {
     const filter = exerciseArr.filter(e => id !== e.id);
     const sets = set.filter(s => id !== s.exercise_id);
-    // console.log(id, filter);
     setSet(sets);
     setExerciseArr(filter);
   };
@@ -354,7 +345,11 @@ const CreateWorkout = () => {
             justifyContent: 'space-between',
             paddingVertical: 10,
           }}>
-          <Text style={[styles.blueSemiboldSF]}>{item.name}</Text>
+          <Text style={[styles.blueSemiboldSF]}>
+            {item.name}{' '}
+            {(item.bar_type === 1 && '(Barbell)') ||
+              (item.bar_type == 2 && '(Dumbbell)')}
+          </Text>
           <TouchableOpacity
             onPress={() => {
               handleDeleteExercise(item.id);
@@ -697,6 +692,7 @@ const CreateWorkout = () => {
         {workoutTracker.slideView === 'active' && (
           <TouchableOpacity
             onPress={() => {
+              storeSets(set);
               setActiveWorkoutState({
                 ongoing: false,
                 startTime: '',

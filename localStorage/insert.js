@@ -5,7 +5,7 @@ import { useWorkoutTracker } from '../contexts/workoutTracker';
 
 const storeExercise = async (key, newData) => {
   try {
-    const jsonValue = await AsyncStorage.getItem(key);
+    const jsonValue = await AsyncStorage.getItem('exercise');
     let dataArray = jsonValue != null ? JSON.parse(jsonValue) : [];
     dataArray.push(newData);
     await AsyncStorage.setItem(key, JSON.stringify(dataArray));
@@ -24,7 +24,6 @@ const storeTemplate = async (key, templateObject) => {
     console.error('Error storing data in array', error);
   }
   const check = await getExercise(key);
-  console.log('Added: \n', check);
 };
 
 const storeNewTemplateArray = async (key, templateArray) => {
@@ -40,18 +39,25 @@ const setStoreExercise = async () => {
   const localRes = await getExercise('exercise');
   const existingExercises = Array.isArray(localRes) ? localRes : [];
   for (let i = 0; i < res?.length; i++) {
-    const exerciseObject = {name: res[i].exercise, id: res[i].id};
     const present = existingExercises.find(item => item.id === res[i].id);
     if (!present) {
-      await storeExercise('exercise', exerciseObject);
+      existingExercises.push(res[i]);
     }
   }
+  await AsyncStorage.setItem('exercise', JSON.stringify(existingExercises));
+};
+
+const storeNewExercise = async exercise => {
+  const res = await getExercise('exercise');
+  const parse =
+    typeof res === 'string' && res !== null ? JSON.parse(res) : res || [];
+  parse.push(exercise);
+  await AsyncStorage.setItem('exercise', JSON.stringify(parse));
 };
 
 const clearStorage = async () => {
   try {
     await AsyncStorage.clear();
-    console.log('AsyncStorage successfully cleared');
   } catch (error) {
     console.error('Error clearing AsyncStorage', error);
   }
@@ -60,7 +66,6 @@ const clearStorage = async () => {
 const clearKey = async (key) => {
   try {
     await AsyncStorage.removeItem(key);
-    console.log(`Data under key "${key}" has been removed.`);
   } catch (error) {
     console.error('Error clearing key:', error);
   }
@@ -72,7 +77,6 @@ const checkIfPresent = async (id, template) => {
     const newArray = localRes.filter(object => object.id !== id);
     newArray.push(template);
     await storeNewTemplateArray('templates', newArray);
-    console.log('Updated templates:', newArray);
   } catch (error) {
     console.error('Error updating templates:', error);
   }
@@ -97,6 +101,16 @@ const storeSessionInstance = async sessionInstance => {
   }
 };
 
+const storeSets = async sets => {
+  const filteredSets = sets.filter(set => set.isFinished === true);
+  const res = await AsyncStorage.getItem('sets');
+  let newSets = res !== null ? JSON.parse(res) : [];
+  for (let i = 0; i < filteredSets.length; i++) {
+    newSets.push(filteredSets[i]);
+  }
+  await AsyncStorage.setItem('sets', JSON.stringify(newSets));
+};
+
 export {
   setStoreExercise,
   clearStorage,
@@ -106,4 +120,6 @@ export {
   storeExercise,
   setActiveWorkoutState,
   storeSessionInstance,
+  storeSets,
+  storeNewExercise,
 };

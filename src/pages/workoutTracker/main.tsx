@@ -16,6 +16,7 @@ import {useWorkoutTracker} from '../../../contexts/workoutTracker';
 import {
   fetchActiveWorkout,
   fetchSessions,
+  fetchSets,
   getExercise,
   getTemplates,
 } from '../../../localStorage/fetch';
@@ -40,6 +41,8 @@ import {
   HomeEmpty,
   HomeFilled,
 } from '../../../assets/svgs/workoutTrackerSvgs';
+import GenerateRandomID from './generateRandomID';
+import Progress from './progressView';
 
 const height = Dimensions.get('screen').height;
 const width = Dimensions.get('screen').width;
@@ -119,19 +122,24 @@ const MainWorkoutTracker = () => {
       transX.value = withTiming(0, {duration: 300});
     }
     if (slideView === 1) {
-      translateX.value = withTiming((width - 40) / 2, {duration: 300});
+      translateX.value = withTiming((width - 40) / 3, {duration: 300});
       transX.value = withTiming(-width, {duration: 300});
+    }
+    if (slideView === 2) {
+      translateX.value = withTiming(((width - 40) / 3) * 2, {duration: 300});
+      transX.value = withTiming(-width * 2, {duration: 300});
     }
   }, [slideView]);
 
   useEffect(() => {
+    // clearStorage();
     const handleSessions = async () => {
       const res = await fetchSessions();
       setSessions(res);
     };
 
     handleSessions();
-  }, []);
+  }, [workoutTracker.activeWorkout]);
 
   useEffect(() => {
     fetchActiveWorkout();
@@ -228,7 +236,16 @@ const MainWorkoutTracker = () => {
   });
 
   const handleSetPopupModal = (template: object) => {
-    setTemplatePopup(template);
+    const obj = {
+      session_num: GenerateRandomID(),
+      date: template.date,
+      duration: 0,
+      exercises: template.exercises,
+      id: template.id,
+      name: template.name,
+      sets: template.sets,
+    };
+    setTemplatePopup(obj);
     setShowWorkoutModal(true);
   };
 
@@ -305,7 +322,9 @@ const MainWorkoutTracker = () => {
         <Text
           style={[styles.regSF, {paddingTop: 5, fontSize: 14}]}
           key={eIndex}>
-          {exercise.name}
+          {exercise.name}{' '}
+          {(exercise.bar_type === 1 && '(Barbell)') ||
+            (exercise.bar_type == 2 && '(Dumbbell)')}
         </Text>
       ))}
     </TouchableOpacity>
@@ -317,7 +336,6 @@ const MainWorkoutTracker = () => {
     let totalWeight;
     for (let i = 0; i < sets; i++) {
       totalWeight += parseInt(sets.weight, 10);
-      console.log(sets[i]);
     }
     return (
       <View
@@ -379,7 +397,10 @@ const MainWorkoutTracker = () => {
           justifyContent: 'center',
           zIndex: 1,
         }}>
-        <View
+        <Pressable
+          onPress={() => {
+            setShowSession(false);
+          }}
           style={{
             width: '100%',
             height: '100%',
@@ -398,6 +419,8 @@ const MainWorkoutTracker = () => {
             borderRadius: 10,
             padding: 10,
             flexDirection: 'column',
+            maxHeight: height * 0.7,
+            overflow: 'hidden',
           }}>
           <View
             style={{
@@ -417,116 +440,118 @@ const MainWorkoutTracker = () => {
               <Cross width={12} height={12} color={'white'} />
             </TouchableOpacity>
           </View>
-          {session.exercises.map((exercise, index) => {
-            const set = session.sets.filter(
-              set => exercise.id === set.exercise_id,
-            );
-            return (
-              <View
-                key={exercise.id}
-                style={{flexDirection: 'column', marginBottom: 20}}>
-                <Text
-                  style={[
-                    styles.nativeBlueSFMed,
-                    {fontSize: 14, marginBottom: 10},
-                  ]}>
-                  {exercise.name}
-                </Text>
+          <ScrollView showsVerticalScrollIndicator={false}>
+            {session.exercises.map((exercise, index) => {
+              const set = session.sets.filter(
+                set => exercise.id === set.exercise_id,
+              );
+              return (
                 <View
-                  style={{
-                    flexDirection: 'row',
-                    marginBottom: 5,
-                    marginLeft: 10,
-                  }}>
+                  key={exercise.id}
+                  style={{flexDirection: 'column', marginBottom: 20}}>
                   <Text
                     style={[
-                      {
-                        width: 26,
-                        fontSize: 14,
-                        marginRight: 10,
-                        textAlign: 'center',
-                      },
-                      styles.medSF,
+                      styles.nativeBlueSFMed,
+                      {fontSize: 14, marginBottom: 10},
                     ]}>
-                    Set
+                    {exercise.name}
                   </Text>
-                  <Text
-                    style={[
-                      {
-                        width: 45,
-                        fontSize: 14,
-                        marginRight: 10,
-                        textAlign: 'center',
-                      },
-                      styles.medSF,
-                    ]}>
-                    kg
-                  </Text>
-                  <Text
-                    style={[
-                      {
-                        width: 40,
-                        fontSize: 14,
-                        marginRight: 10,
-                        textAlign: 'center',
-                      },
-                      styles.medSF,
-                    ]}>
-                    reps
-                  </Text>
-                </View>
-                {set.map((set, sIndex) => {
-                  return (
-                    <View key={set.id}>
-                      <View
-                        style={{
-                          flexDirection: 'row',
-                          marginBottom: 5,
-                          marginLeft: 10,
-                        }}>
-                        <Text
-                          style={[
-                            {
-                              width: 26,
-                              fontSize: 14,
-                              marginRight: 10,
-                              textAlign: 'center',
-                            },
-                            styles.medSF,
-                          ]}>
-                          {sIndex + 1}
-                        </Text>
-                        <Text
-                          style={[
-                            {
-                              width: 45,
-                              fontSize: 14,
-                              marginRight: 10,
-                              textAlign: 'center',
-                            },
-                            styles.medSF,
-                          ]}>
-                          {set.weight}
-                        </Text>
-                        <Text
-                          style={[
-                            {
-                              width: 40,
-                              fontSize: 14,
-                              marginRight: 10,
-                              textAlign: 'center',
-                            },
-                            styles.medSF,
-                          ]}>
-                          {set.reps}
-                        </Text>
+                  <View
+                    style={{
+                      flexDirection: 'row',
+                      marginBottom: 5,
+                      marginLeft: 10,
+                    }}>
+                    <Text
+                      style={[
+                        {
+                          width: 26,
+                          fontSize: 14,
+                          marginRight: 10,
+                          textAlign: 'center',
+                        },
+                        styles.medSF,
+                      ]}>
+                      Set
+                    </Text>
+                    <Text
+                      style={[
+                        {
+                          width: 45,
+                          fontSize: 14,
+                          marginRight: 10,
+                          textAlign: 'center',
+                        },
+                        styles.medSF,
+                      ]}>
+                      kg
+                    </Text>
+                    <Text
+                      style={[
+                        {
+                          width: 40,
+                          fontSize: 14,
+                          marginRight: 10,
+                          textAlign: 'center',
+                        },
+                        styles.medSF,
+                      ]}>
+                      reps
+                    </Text>
+                  </View>
+                  {set.map((set, sIndex) => {
+                    return (
+                      <View key={set.id}>
+                        <View
+                          style={{
+                            flexDirection: 'row',
+                            marginBottom: 5,
+                            marginLeft: 10,
+                          }}>
+                          <Text
+                            style={[
+                              {
+                                width: 26,
+                                fontSize: 14,
+                                marginRight: 10,
+                                textAlign: 'center',
+                              },
+                              styles.medSF,
+                            ]}>
+                            {sIndex + 1}
+                          </Text>
+                          <Text
+                            style={[
+                              {
+                                width: 45,
+                                fontSize: 14,
+                                marginRight: 10,
+                                textAlign: 'center',
+                              },
+                              styles.medSF,
+                            ]}>
+                            {set.weight}
+                          </Text>
+                          <Text
+                            style={[
+                              {
+                                width: 40,
+                                fontSize: 14,
+                                marginRight: 10,
+                                textAlign: 'center',
+                              },
+                              styles.medSF,
+                            ]}>
+                            {set.reps}
+                          </Text>
+                        </View>
                       </View>
-                    </View>
-                  );
-                })}
-              </View>
-            );
-          })}
+                    );
+                  })}
+                </View>
+              );
+            })}
+          </ScrollView>
         </View>
       </View>
     );
@@ -773,7 +798,7 @@ const MainWorkoutTracker = () => {
             backgroundColor: '#E2E2E2',
             borderRadius: 10,
             marginTop: 10,
-            marginBottom: 20,
+            marginBottom: 10,
             overflow: 'hidden',
           }}>
           <Animated.View
@@ -782,7 +807,7 @@ const MainWorkoutTracker = () => {
                 position: 'absolute',
                 backgroundColor: '#02BC86',
                 height: '100%',
-                width: '50%',
+                width: '33.3%',
                 zIndex: 0,
               },
               animatedStyle,
@@ -790,7 +815,7 @@ const MainWorkoutTracker = () => {
           />
           <TouchableOpacity
             style={{
-              width: '50%',
+              width: '33.3%',
               alignItems: 'center',
               justifyContent: 'center',
               zIndex: 2,
@@ -808,7 +833,7 @@ const MainWorkoutTracker = () => {
           </TouchableOpacity>
           <TouchableOpacity
             style={{
-              width: '50%',
+              width: '33.3%',
               alignItems: 'center',
               justifyContent: 'center',
               zIndex: 2,
@@ -824,6 +849,24 @@ const MainWorkoutTracker = () => {
               Sessions
             </Text>
           </TouchableOpacity>
+          <TouchableOpacity
+            style={{
+              width: '33.3%',
+              alignItems: 'center',
+              justifyContent: 'center',
+              zIndex: 2,
+            }}
+            onPress={() => {
+              setSlideView(2);
+            }}>
+            <Text
+              style={[
+                slideView === 2 ? styles.medSF : styles.blueSFMed,
+                {fontSize: 14},
+              ]}>
+              Progress
+            </Text>
+          </TouchableOpacity>
         </View>
       </View>
       <Animated.View
@@ -831,7 +874,7 @@ const MainWorkoutTracker = () => {
           {
             flexDirection: 'row',
             justifyContent: 'space-between',
-            width: width * 2,
+            width: width * 3,
           },
           animatedSlide,
         ]}>
@@ -842,6 +885,7 @@ const MainWorkoutTracker = () => {
             paddingBottom: 60,
             paddingHorizontal: 20,
             height: '100%',
+            width: width,
           }}
           style={{width: width}}>
           {/* First List */}
@@ -896,6 +940,9 @@ const MainWorkoutTracker = () => {
             />
           </View>
         </ScrollView>
+        <View style={{width: width}}>
+          <Progress />
+        </View>
       </Animated.View>
       {workoutTracker.activeWorkout === true && (
         <TouchableOpacity

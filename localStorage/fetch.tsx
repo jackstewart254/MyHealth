@@ -3,7 +3,7 @@ import React from 'react';
 
 const getExercise = async key => {
   try {
-    const value = await AsyncStorage.getItem(key);
+    const value = await AsyncStorage.getItem('exercise');
     if (value !== null) {
       const parsedValue = JSON.parse(value); // Parse the JSON string
       return parsedValue;
@@ -43,4 +43,19 @@ const fetchSessions = async () => {
 
 const removeElement = async () => {};
 
-export {getExercise, getTemplates, fetchActiveWorkout, fetchSessions};
+const fetchSets = async () => {
+  const res = await AsyncStorage.getItem('sets');
+  const data = res !== null ? JSON.parse(res) : [];
+};
+
+// const fetchSpecificSets = async (id: ) => {
+
+// }
+
+export {
+  getExercise,
+  getTemplates,
+  fetchActiveWorkout,
+  fetchSessions,
+  fetchSets,
+};
