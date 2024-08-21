@@ -185,10 +185,13 @@ const AddExerciseModal = () => {
                 onChangeText={text => {
                   setValue(text);
                 }}
-                style={[
-                  styles.medSF,
-                  {fontSize: 14, padding: 10, width: '81.1%'},
-                ]}
+                style={{
+                  fontSize: 14,
+                  padding: 10,
+                  width: '81.1%',
+                  fontFamily: 'SFUIText-Medium',
+                  color: '#24262E',
+                }}
               />
               <TouchableOpacity
                 onPress={addExercise}
@@ -205,19 +208,17 @@ const AddExerciseModal = () => {
             </View>
           ) : (
             <TextInput
-              style={[
-                {
-                  paddingVertical: 10,
-                  paddingHorizontal: 10,
-                  color: 'white',
-                  width: '100%',
-                  backgroundColor: '#E2E2E2',
-                  borderRadius: 5,
-                  fontSize: 14,
-                  marginBottom: 20,
-                },
-                styles.medSF,
-              ]}
+              style={{
+                paddingVertical: 10,
+                paddingHorizontal: 10,
+                width: '100%',
+                backgroundColor: '#E2E2E2',
+                borderRadius: 5,
+                fontSize: 14,
+                marginBottom: 20,
+                fontFamily: 'SFUIText-Medium',
+                color: '#24262E',
+              }}
               placeholder="Search"
               placeholderTextColor={'#7D7D7D'}
               value={exerciseVal}
@@ -262,7 +263,9 @@ const AddExerciseModal = () => {
                   ]}>
                   {item.name}{' '}
                   {(item.bar_type === 1 && '(Barbell)') ||
-                    (item.bar_type == 2 && '(Dumbbell)')}
+                    (item.bar_type === 2 && '(Dumbbell)') ||
+                    (item.bar_type === 3 && '(Cable)') ||
+                    (item.type === 3 && '(Stretch)')}
                 </Text>
               </TouchableOpacity>
               <View

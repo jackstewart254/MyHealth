@@ -147,18 +147,23 @@ const CreateWorkout = () => {
 
   const handleAddSet = (id: number) => {
     const exerciseSet = set.filter(item => id === item.exercise_id);
+    const present = exerciseSet.find(
+      exercise => exerciseSet.length - 1 === exercise.order,
+    );
+    console.log(present);
     const val = generateRandomID();
     let setObject = {
       session_num: workoutTracker.activeWorkoutTemplate.session_num,
       id: val,
       exercise_id: id,
-      weight: '',
-      reps: '',
+      weight: present !== undefined ? present.weight : '',
+      reps: present !== undefined ? present.reps : '',
       order: exerciseSet.length,
       created_at: new Date(),
       isFinished: false,
-      distance: '',
-      time: '',
+      distance: present !== undefined ? present.distance : '',
+      duration: present !== undefined ? present.duration : '',
+      calories: '',
     };
     let newArr = [...set, setObject];
     newArr.sort((a, b) => a.order - b.order);
@@ -241,6 +246,20 @@ const CreateWorkout = () => {
 
     setSet(prevSets =>
       prevSets.map(set => (set.id === id ? {...set, reps: numericValue} : set)),
+    );
+  };
+
+  const updateSet = (id: number, newVal: string, prop: string) => {
+    console.log(prop);
+    console.log(newVal);
+    const numericValue = newVal === '' ? '' : parseInt(newVal, 10);
+    if (isNaN(numericValue)) {
+      return;
+    }
+    setSet(prevSets =>
+      prevSets.map(set =>
+        set.id === id ? {...set, [prop]: numericValue} : set,
+      ),
     );
   };
 
@@ -336,6 +355,11 @@ const CreateWorkout = () => {
   const renderExercises = ({item, index}: {item: object; index: number}) => {
     const setsForExercise =
       set.filter(setObject => setObject.exercise_id === item.id) || [];
+
+    const exerciseType = item.type;
+    console.log(exerciseType);
+    console.log(item.bar_type);
+
     return (
       <View style={{flexDirection: 'column', paddingBottom: 10}}>
         <View
@@ -379,7 +403,10 @@ const CreateWorkout = () => {
           </View>
           <View
             style={{
-              width: width * 0.45,
+              width:
+                (exerciseType === 3 && width * 0.33) ||
+                (exerciseType === 0 && width * 0.45) ||
+                (exerciseType === 1 && width * 0.33),
               height: 30,
               borderRadius: 5,
               alignItems: 'center',
@@ -389,23 +416,36 @@ const CreateWorkout = () => {
           </View>
           <View
             style={{
-              width: width * 0.115,
+              width:
+                (exerciseType === 3 && width * 0.34) ||
+                (exerciseType === 0 && width * 0.115) ||
+                (exerciseType === 1 && width * 0.18),
               height: 30,
               borderRadius: 5,
               alignItems: 'center',
               justifyContent: 'center',
             }}>
-            <Text style={[styles.semiboldSF, {fontSize: 16}]}>kg</Text>
+            <Text style={[styles.semiboldSF, {fontSize: 16}]}>
+              {(exerciseType === 3 && 'Duration') ||
+                (exerciseType === 0 && 'kg') ||
+                (exerciseType === 1 && 'km')}
+            </Text>
           </View>
           <View
             style={{
-              width: width * 0.09,
+              overflow: 'hidden',
+              width:
+                (exerciseType === 3 && width * 0) ||
+                (exerciseType === 0 && width * 0.09) ||
+                (exerciseType === 1 && width * 0.14),
               height: 30,
               borderRadius: 5,
               alignItems: 'center',
               justifyContent: 'center',
             }}>
-            <Text style={[styles.semiboldSF, {fontSize: 16}]}>Reps</Text>
+            <Text style={[styles.semiboldSF, {fontSize: 16}]}>
+              {exerciseType === 0 ? 'Reps' : 'Time'}
+            </Text>
           </View>
           <View
             style={{
@@ -441,7 +481,10 @@ const CreateWorkout = () => {
               </View>
               <View
                 style={{
-                  width: width * 0.45,
+                  width:
+                    (exerciseType === 3 && width * 0.34) ||
+                    (exerciseType === 0 && width * 0.45) ||
+                    (exerciseType === 1 && width * 0.33),
                   height: 30,
                   backgroundColor: set.isFinished ? '#02BC86' : '#A7A8AB',
                   borderRadius: 5,
@@ -452,7 +495,10 @@ const CreateWorkout = () => {
               </View>
               <View
                 style={{
-                  width: width * 0.115,
+                  width:
+                    (exerciseType === 3 && width * 0.34) ||
+                    (exerciseType === 0 && width * 0.115) ||
+                    (exerciseType === 1 && width * 0.18),
                   height: 30,
                   backgroundColor: set.isFinished ? '#02BC86' : '#A7A8AB',
                   borderRadius: 5,
@@ -467,37 +513,60 @@ const CreateWorkout = () => {
                     {fontSize: 14, width: '100%', textAlign: 'center'},
                   ]}
                   keyboardType="numeric"
-                  value={String(set.weight)}
+                  value={
+                    (exerciseType === 3 && String(set.duration)) ||
+                    (exerciseType === 0 && String(set.weight)) ||
+                    (exerciseType === 1 && String(set.distance))
+                  }
                   onChangeText={text => {
-                    updateArrayElementWeight(set.id, text);
+                    updateSet(
+                      set.id,
+                      text,
+                      (exerciseType === 0 && 'weight') ||
+                        (exerciseType === 3 && 'duration') ||
+                        (exerciseType === 1 && 'distance'),
+                    );
                   }}
                   selectTextOnFocus={true}
                 />
               </View>
-              <View
-                style={{
-                  width: width * 0.09,
-                  height: 30,
-                  backgroundColor: set.isFinished ? '#02BC86' : '#A7A8AB',
-                  borderRadius: 5,
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                }}>
-                <TextInput
-                  placeholder={'0'}
-                  placeholderTextColor={'white'}
-                  keyboardType="numeric"
-                  value={String(set.reps)}
-                  onChangeText={text => {
-                    updateArrayElementReps(set.id, text);
-                  }}
-                  style={[
-                    styles.medSF,
-                    {fontSize: 14, width: '100%', textAlign: 'center'},
-                  ]}
-                  selectTextOnFocus={true}
-                />
-              </View>
+              {exerciseType !== 3 && (
+                <View
+                  style={{
+                    width:
+                      (exerciseType === 3 && 0) ||
+                      (exerciseType === 0 && width * 0.09) ||
+                      (exerciseType === 1 && width * 0.14),
+                    height: 30,
+                    backgroundColor: set.isFinished ? '#02BC86' : '#A7A8AB',
+                    borderRadius: 5,
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}>
+                  <TextInput
+                    placeholder={'0'}
+                    placeholderTextColor={'white'}
+                    keyboardType="numeric"
+                    value={
+                      (exerciseType === 0 && String(set.reps)) ||
+                      (exerciseType === 1 && String(set.duration))
+                    }
+                    onChangeText={text => {
+                      // updateArrayElementReps(set.id, text);
+                      updateSet(
+                        set.id,
+                        text,
+                        exerciseType === 1 ? 'duration' : 'reps',
+                      );
+                    }}
+                    style={[
+                      styles.medSF,
+                      {fontSize: 14, width: '100%', textAlign: 'center'},
+                    ]}
+                    selectTextOnFocus={true}
+                  />
+                </View>
+              )}
               {workoutTracker.slideView === 'active' ? (
                 <TouchableOpacity
                   onPress={() => {
@@ -572,7 +641,7 @@ const CreateWorkout = () => {
       setWorkoutTracker({
         ...workoutTracker,
         closeSlide: true,
-        showWorkoutComplete: true,
+        showWorkoutComplete: workoutTracker.activeWorkout === false && true,
       });
     }
   };

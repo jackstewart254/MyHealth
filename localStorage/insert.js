@@ -111,6 +111,15 @@ const storeSets = async sets => {
   await AsyncStorage.setItem('sets', JSON.stringify(newSets));
 };
 
+const storeUser = async object => {
+  await AsyncStorage.setItem('user', JSON.stringify(object));
+};
+
+const fetchUser = async () => {
+  const res = await AsyncStorage.getItem('user');
+  return res;
+};
+
 export {
   setStoreExercise,
   clearStorage,
@@ -122,4 +131,6 @@ export {
   storeSessionInstance,
   storeSets,
   storeNewExercise,
+  storeUser,
+  fetchUser,
 };

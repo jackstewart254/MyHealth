@@ -9,7 +9,8 @@ import {
   Dimensions,
 } from 'react-native';
 import {useWorkoutTracker} from '../../../contexts/workoutTracker';
-import {getExercise} from '../../../localStorage/fetch';
+import {fetchSets, getExercise} from '../../../localStorage/fetch';
+import {format} from 'date-fns';
 
 const height = Dimensions.get('screen').height;
 
@@ -24,6 +25,14 @@ const Progress = () => {
   });
   const [search, setSearch] = useState('');
   const [searchArray, setSearchArray] = useState([]);
+  const [selected, setSelected] = useState({
+    bar_type: 0,
+    id: 0,
+    name: '',
+    type: 0,
+  });
+  const [sets, setSets] = useState([]);
+  const [close, setClose] = useState(false);
 
   // const
 
@@ -38,11 +47,19 @@ const Progress = () => {
 
   useEffect(() => {
     const fetch = async () => {
-      const res = await getExercise('exercise');
-      setExerciseSet(res);
-      setSearchArray(res);
+      const res = await fetchSets(selected.id);
+      setSets(res);
     };
 
+    fetch();
+  }, [selected]);
+
+  useEffect(() => {
+    const fetch = async () => {
+      const res = await getExercise('exercise');
+      setSearchArray(res);
+      setExerciseSet(res);
+    };
     fetch();
   }, []);
 
@@ -50,17 +67,26 @@ const Progress = () => {
     return (
       <View
         style={{
+          left: 20,
           width: '50%',
           padding: 10,
           backgroundColor: '#E2E2E2',
           borderRadius: 10,
           maxHeight: height / 2,
           overflow: 'hidden',
+          position: 'absolute',
+          zIndex: 1,
+          top: 48,
         }}>
         <ScrollView showsVerticalScrollIndicator={false}>
           {searchArray.map((exercise, index) => {
             return (
               <TouchableOpacity
+                onPress={() => {
+                  setSelected(exercise);
+                  setSearch(exercise.name);
+                  setClose(false);
+                }}
                 key={exercise.id}
                 style={{flexDirection: 'row', width: '100%'}}>
                 <Text
@@ -99,11 +125,17 @@ const Progress = () => {
           marginBottom: 10,
         }}>
         <TextInput
+          onFocus={() => {
+            setClose(true);
+          }}
+          onPress={() => {
+            setClose(true);
+          }}
           onChangeText={text => {
             setSearch(text);
           }}
           placeholder="Search for exercises"
-          placeholderTextColor={'#76777D'}
+          placeholderTextColor={'#24262E'}
           value={search}
           style={{
             height: '100%',
@@ -113,24 +145,45 @@ const Progress = () => {
             fontFamily: 'SFUIText-Regular',
           }}
         />
-        {/* <TouchableOpacity
-          style={{
-            flex: 1,
-            backgroundColor: '#02BC86',
-            alignItems: 'center',
-            justifyContent: 'center',
-          }}>
-          <Text
-            style={{
-              fontFamily: 'SFUIText-Medium',
-              color: 'white',
-              fontSize: 14,
-            }}>
-            Search
-          </Text>
-        </TouchableOpacity> */}
       </View>
-      {search.length > 0 && renderResults()}
+      {search.length > 0 && close === true && renderResults()}
+      <ScrollView showsVerticalScrollIndicator>
+        {sets.map(item => {
+          return (
+            <View
+              key={item.id}
+              style={{
+                width: '100%',
+                flexDirection: 'row',
+                backgroundColor: '#24262E',
+                marginBottom: 20,
+                paddingVertical: 10,
+                borderWidth: 1,
+                borderColor: 'white',
+                borderRadius: 5,
+                padding: 10,
+              }}>
+              <Text
+                style={{
+                  padding: 5,
+                  fontFamily: 'SFUIText-Medium',
+                  color: 'white',
+                }}>
+                {item.order}
+              </Text>
+              <Text
+                style={{
+                  padding: 5,
+                  fontFamily: 'SFUIText-Medium',
+                  color: 'white',
+                }}>
+                {format(item.created_at, 'dd/mm/yyyy')}
+              </Text>
+              <Text>{item.weight}</Text>
+            </View>
+          );
+        })}
+      </ScrollView>
     </View>
   );
 };

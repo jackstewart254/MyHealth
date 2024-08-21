@@ -305,30 +305,32 @@ const MainWorkoutTracker = () => {
 
   const handleDelete = item => {};
 
-  const renderWorkouts = ({item}) => (
-    <TouchableOpacity
-      onPress={() => {
-        edit ? handleDelete(item) : handleSetPopupModal(item);
-      }}
-      style={{
-        padding: 10,
-        borderRadius: 10,
-        borderColor: edit ? 'red' : 'white',
-        borderWidth: 1,
-        marginBottom: 10,
-      }}>
-      <Text style={[styles.medSF, {fontSize: 16}]}>{item.name}</Text>
-      {item.exercises.map((exercise, eIndex) => (
-        <Text
-          style={[styles.regSF, {paddingTop: 5, fontSize: 14}]}
-          key={eIndex}>
-          {exercise.name}{' '}
-          {(exercise.bar_type === 1 && '(Barbell)') ||
-            (exercise.bar_type == 2 && '(Dumbbell)')}
-        </Text>
-      ))}
-    </TouchableOpacity>
-  );
+  const renderWorkouts = ({item}) => {
+    return (
+      <TouchableOpacity
+        onPress={() => {
+          edit ? handleDelete(item) : handleSetPopupModal(item);
+        }}
+        style={{
+          padding: 10,
+          borderRadius: 10,
+          borderColor: edit ? 'red' : 'white',
+          borderWidth: 1,
+          marginBottom: 10,
+        }}>
+        <Text style={[styles.medSF, {fontSize: 16}]}>{item.name}</Text>
+        {item.exercises.map((exercise, eIndex) => (
+          <Text
+            style={[styles.regSF, {paddingTop: 5, fontSize: 14}]}
+            key={eIndex}>
+            {exercise.name}{' '}
+            {(exercise.bar_type === 1 && '(Barbell)') ||
+              (exercise.bar_type == 2 && '(Dumbbell)')}
+          </Text>
+        ))}
+      </TouchableOpacity>
+    );
+  };
 
   const workoutSummary = () => {
     const session = workoutTracker.activeWorkoutTemplate;
@@ -442,6 +444,7 @@ const MainWorkoutTracker = () => {
           </View>
           <ScrollView showsVerticalScrollIndicator={false}>
             {session.exercises.map((exercise, index) => {
+              const type = exercise.type;
               const set = session.sets.filter(
                 set => exercise.id === set.exercise_id,
               );
@@ -484,7 +487,10 @@ const MainWorkoutTracker = () => {
                         },
                         styles.medSF,
                       ]}>
-                      kg
+                      {(type === 0 && 'kg') ||
+                        (type === 1 && 'km') ||
+                        (type === 2 && 'kg') ||
+                        (type === 3 && 'S')}
                     </Text>
                     <Text
                       style={[
@@ -496,7 +502,9 @@ const MainWorkoutTracker = () => {
                         },
                         styles.medSF,
                       ]}>
-                      reps
+                      {(type === 0 && 'kg') ||
+                        (type === 1 && 'km') ||
+                        (type === 2 && 'kg')}
                     </Text>
                   </View>
                   {set.map((set, sIndex) => {
@@ -530,7 +538,10 @@ const MainWorkoutTracker = () => {
                               },
                               styles.medSF,
                             ]}>
-                            {set.weight}
+                            {(type === 0 && set.weight) ||
+                              (type === 1 && set.distance) ||
+                              (type === 2 && set.weight) ||
+                              (type === 3 && set.duration)}
                           </Text>
                           <Text
                             style={[
@@ -542,7 +553,9 @@ const MainWorkoutTracker = () => {
                               },
                               styles.medSF,
                             ]}>
-                            {set.reps}
+                            {(type === 0 && set.reps) ||
+                              (type === 1 && set.duration) ||
+                              (type === 2 && set.reps)}
                           </Text>
                         </View>
                       </View>

@@ -43,10 +43,15 @@ const fetchSessions = async () => {
 
 const removeElement = async () => {};
 
-const fetchSets = async () => {
+const fetchSets = async id => {
   const res = await AsyncStorage.getItem('sets');
   const data = res !== null ? JSON.parse(res) : [];
+  const filteredValue = data.filter(set => id === set.exercise_id);
+  return filteredValue;
 };
+
+
+// const fetch;
 
 // const fetchSpecificSets = async (id: ) => {
 
