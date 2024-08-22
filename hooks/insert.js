@@ -16,8 +16,6 @@ const insertExercise = async exercise => {
     .select();
 };
 
-const insertSession = async () => {};
-
 const insertWorkout = async session => {
   const exerciseSets = session.sets;
   const sessionExercises = session.exercises;

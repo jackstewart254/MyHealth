@@ -12,8 +12,6 @@ const handleSignup = async ({
     email: email,
     password: password,
   });
-  console.log('data', data);
-  console.log('error', error);
 };
 
 const handleLogin = async ({
@@ -27,8 +25,6 @@ const handleLogin = async ({
     email: 'someone@email.com',
     password: 'RtlzqzuXBZpwHJoDOgco',
   });
-  console.log('data', data);
-  console.log('error', error);
 };
 
 const addUser = async ({name}: {name: string}) => {

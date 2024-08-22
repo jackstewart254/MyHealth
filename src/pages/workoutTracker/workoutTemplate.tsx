@@ -41,6 +41,8 @@ import {differenceInMinutes} from 'date-fns';
 import AddExerciseModal from './addExerciseModal';
 import Duration from './durationComponent';
 import {insertWorkout} from '../../../hooks/insert';
+import ConnectionStatus from '../../../assets/connectionStatus';
+import useConnectionStatus from '../../../assets/connectionStatus';
 
 const CreateWorkout = () => {
   const [exerciseArr, setExerciseArr] = useState([]);
@@ -53,6 +55,9 @@ const CreateWorkout = () => {
   const [edit, setEdit] = useState(false);
   const [template, setTemplate] = useState('');
   const [close, setClose] = useState(false);
+  const {isConnected, connectionType} = useConnectionStatus();
+
+  useEffect(() => {}, [isConnected]);
 
   useEffect(() => {
     if (workoutTracker.newExercise === true) {
@@ -201,6 +206,57 @@ const CreateWorkout = () => {
       newArray.sort((a, b) => a.order - b.order);
       setSet(newArray);
     }
+  };
+
+  const handleEndWorkout = () => {
+    const id = generateRandomID();
+    storeSessionInstance({
+      name: template,
+      exercises: exerciseArr,
+      sets: set,
+      date: workoutTracker.activeWorkoutStartTime,
+      duration: differenceInMinutes(
+        new Date(),
+        workoutTracker.activeWorkoutStartTime,
+      ),
+      template_id: workoutTracker.activeWorkoutTemplate.id,
+      id: id,
+    });
+    if (isConnected === true) {
+      insertWorkout({
+        name: template,
+        exercises: exerciseArr,
+        sets: set,
+        date: workoutTracker.activeWorkoutStartTime,
+        duration: differenceInMinutes(
+          new Date(),
+          workoutTracker.activeWorkoutStartTime,
+        ),
+        template_id: workoutTracker.activeWorkoutTemplate.id,
+        id: id,
+      });
+    }
+    storeSets(set);
+    setActiveWorkoutState({
+      ongoing: false,
+      startTime: '',
+      templateID: {
+        name: '',
+        exercises: [],
+        sets: [],
+        date: '',
+        duration: 0,
+        template_id: workoutTracker.activeWorkoutTemplate.id,
+        id: generateRandomID(),
+      },
+    });
+    setWorkoutTracker({
+      ...workoutTracker,
+      activeWorkout: false,
+      activeWorkoutStartTime: '',
+      closeSlide: true,
+      showWorkoutComplete: true,
+    });
   };
 
   const handleSavingWorkout = async () => {
@@ -402,6 +458,7 @@ const CreateWorkout = () => {
               width:
                 (exerciseType === 3 && width * 0.33) ||
                 (exerciseType === 0 && width * 0.45) ||
+                (exerciseType === 2 && width * 0.45) ||
                 (exerciseType === 1 && width * 0.33),
               height: 30,
               borderRadius: 5,
@@ -415,6 +472,7 @@ const CreateWorkout = () => {
               width:
                 (exerciseType === 3 && width * 0.34) ||
                 (exerciseType === 0 && width * 0.115) ||
+                (exerciseType === 2 && width * 0.115) ||
                 (exerciseType === 1 && width * 0.18),
               height: 30,
               borderRadius: 5,
@@ -424,6 +482,7 @@ const CreateWorkout = () => {
             <Text style={[styles.semiboldSF, {fontSize: 16}]}>
               {(exerciseType === 3 && 'Duration') ||
                 (exerciseType === 0 && 'kg') ||
+                (exerciseType === 2 && 'kg') ||
                 (exerciseType === 1 && 'km')}
             </Text>
           </View>
@@ -433,6 +492,7 @@ const CreateWorkout = () => {
               width:
                 (exerciseType === 3 && width * 0) ||
                 (exerciseType === 0 && width * 0.09) ||
+                (exerciseType === 2 && width * 0.09) ||
                 (exerciseType === 1 && width * 0.14),
               height: 30,
               borderRadius: 5,
@@ -440,7 +500,9 @@ const CreateWorkout = () => {
               justifyContent: 'center',
             }}>
             <Text style={[styles.semiboldSF, {fontSize: 16}]}>
-              {exerciseType === 0 ? 'Reps' : 'Time'}
+              {(exerciseType === 0 && 'Reps') ||
+                (exerciseType === 1 && 'Min') ||
+                (exerciseType === 2 && 'Reps')}
             </Text>
           </View>
           <View
@@ -480,7 +542,8 @@ const CreateWorkout = () => {
                   width:
                     (exerciseType === 3 && width * 0.34) ||
                     (exerciseType === 0 && width * 0.45) ||
-                    (exerciseType === 1 && width * 0.33),
+                    (exerciseType === 1 && width * 0.33) ||
+                    (exerciseType === 2 && width * 0.45),
                   height: 30,
                   backgroundColor: set.isFinished ? '#02BC86' : '#A7A8AB',
                   borderRadius: 5,
@@ -494,7 +557,8 @@ const CreateWorkout = () => {
                   width:
                     (exerciseType === 3 && width * 0.34) ||
                     (exerciseType === 0 && width * 0.115) ||
-                    (exerciseType === 1 && width * 0.18),
+                    (exerciseType === 1 && width * 0.18) ||
+                    (exerciseType === 2 && width * 0.115),
                   height: 30,
                   backgroundColor: set.isFinished ? '#02BC86' : '#A7A8AB',
                   borderRadius: 5,
@@ -512,7 +576,8 @@ const CreateWorkout = () => {
                   value={
                     (exerciseType === 3 && String(set.duration)) ||
                     (exerciseType === 0 && String(set.weight)) ||
-                    (exerciseType === 1 && String(set.distance))
+                    (exerciseType === 1 && String(set.distance)) ||
+                    (exerciseType === 2 && String(set.weight))
                   }
                   onChangeText={text => {
                     updateSet(
@@ -520,7 +585,8 @@ const CreateWorkout = () => {
                       text,
                       (exerciseType === 0 && 'weight') ||
                         (exerciseType === 3 && 'duration') ||
-                        (exerciseType === 1 && 'distance'),
+                        (exerciseType === 1 && 'distance') ||
+                        (exerciseType === 2 && 'weight'),
                     );
                   }}
                   selectTextOnFocus={true}
@@ -532,7 +598,8 @@ const CreateWorkout = () => {
                     width:
                       (exerciseType === 3 && 0) ||
                       (exerciseType === 0 && width * 0.09) ||
-                      (exerciseType === 1 && width * 0.14),
+                      (exerciseType === 1 && width * 0.14) ||
+                      (exerciseType === 2 && width * 0.09),
                     height: 30,
                     backgroundColor: set.isFinished ? '#02BC86' : '#A7A8AB',
                     borderRadius: 5,
@@ -545,7 +612,8 @@ const CreateWorkout = () => {
                     keyboardType="numeric"
                     value={
                       (exerciseType === 0 && String(set.reps)) ||
-                      (exerciseType === 1 && String(set.duration))
+                      (exerciseType === 1 && String(set.duration)) ||
+                      (exerciseType === 2 && String(set.reps))
                     }
                     onChangeText={text => {
                       // updateArrayElementReps(set.id, text);
@@ -756,55 +824,7 @@ const CreateWorkout = () => {
         </TouchableOpacity>
         {workoutTracker.slideView === 'active' && (
           <TouchableOpacity
-            onPress={() => {
-              const id = generateRandomID();
-              storeSessionInstance({
-                name: template,
-                exercises: exerciseArr,
-                sets: set,
-                date: workoutTracker.activeWorkoutStartTime,
-                duration: differenceInMinutes(
-                  new Date(),
-                  workoutTracker.activeWorkoutStartTime,
-                ),
-                template_id: workoutTracker.activeWorkoutTemplate.id,
-                id: id,
-              });
-              insertWorkout({
-                name: template,
-                exercises: exerciseArr,
-                sets: set,
-                date: workoutTracker.activeWorkoutStartTime,
-                duration: differenceInMinutes(
-                  new Date(),
-                  workoutTracker.activeWorkoutStartTime,
-                ),
-                template_id: workoutTracker.activeWorkoutTemplate.id,
-                id: id,
-              });
-              storeSets(set);
-              setActiveWorkoutState({
-                ongoing: false,
-                startTime: '',
-                templateID: {
-                  name: '',
-                  exercises: [],
-                  sets: [],
-                  date: '',
-                  duration: 0,
-                  template_id: workoutTracker.activeWorkoutTemplate.id,
-                  id: generateRandomID(),
-                },
-              });
-              setWorkoutTracker({
-                ...workoutTracker,
-                activeWorkout: false,
-                // activeWorkoutTemplate: 0,
-                activeWorkoutStartTime: '',
-                closeSlide: true,
-                showWorkoutComplete: true,
-              });
-            }}
+            onPress={handleEndWorkout}
             style={{
               alignItems: 'center',
               justifyContent: 'center',

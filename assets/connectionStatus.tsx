@@ -1,8 +1,7 @@
-import React, {useState, useEffect} from 'react';
+import {useState, useEffect} from 'react';
 import NetInfo from '@react-native-community/netinfo';
-import {View, Text} from 'react-native';
 
-const ConnectionStatus = () => {
+const useConnectionStatus = () => {
   const [connectionType, setConnectionType] = useState(null);
   const [isConnected, setIsConnected] = useState(null);
 
@@ -17,7 +16,7 @@ const ConnectionStatus = () => {
     };
   }, []);
 
-  return isConnected;
+  return {isConnected, connectionType};
 };
 
-export default ConnectionStatus;
+export default useConnectionStatus;

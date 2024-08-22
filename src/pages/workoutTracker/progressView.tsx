@@ -147,7 +147,7 @@ const Progress = () => {
         />
       </View>
       {search.length > 0 && close === true && renderResults()}
-      <ScrollView showsVerticalScrollIndicator>
+      {/* <ScrollView showsVerticalScrollIndicator>
         {sets.map(item => {
           return (
             <View
@@ -183,7 +183,7 @@ const Progress = () => {
             </View>
           );
         })}
-      </ScrollView>
+      </ScrollView> */}
     </View>
   );
 };

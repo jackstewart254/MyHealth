@@ -22,7 +22,6 @@ const Navigation = () => {
     // clearKey('user');
     const lunc = async () => {
       const res = await fetchUser();
-      console.log(res);
       setUserValid(res === null && true);
     };
     lunc();

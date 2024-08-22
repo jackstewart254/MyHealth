@@ -43,6 +43,8 @@ import {
 } from '../../../assets/svgs/workoutTrackerSvgs';
 import GenerateRandomID from './generateRandomID';
 import Progress from './progressView';
+import ConnectionStatus from '../../../assets/connectionStatus';
+import useConnectionStatus from '../../../assets/connectionStatus';
 
 const height = Dimensions.get('screen').height;
 const width = Dimensions.get('screen').width;
@@ -103,18 +105,6 @@ const MainWorkoutTracker = () => {
   const [sessionObj, setSessionObj] = useState();
   const [closeSummary, setCloseSummary] = useState(false);
   const [edit, setEdit] = useState(false);
-
-  const animatedSlide = useAnimatedStyle(() => {
-    return {
-      transform: [{translateX: transX.value}],
-    };
-  });
-
-  const animatedStyle = useAnimatedStyle(() => {
-    return {
-      transform: [{translateX: translateX.value}],
-    };
-  });
 
   useEffect(() => {
     if (slideView === 0) {
@@ -228,6 +218,18 @@ const MainWorkoutTracker = () => {
       }, 200);
     }
   }, [templatePopup, closePopup]);
+
+  const animatedSlide = useAnimatedStyle(() => {
+    return {
+      transform: [{translateX: transX.value}],
+    };
+  });
+
+  const animatedStyle = useAnimatedStyle(() => {
+    return {
+      transform: [{translateX: translateX.value}],
+    };
+  });
 
   const animatedOpacity = useAnimatedStyle(() => {
     return {
@@ -712,7 +714,7 @@ const MainWorkoutTracker = () => {
           <HomeFilled />
         </TouchableOpacity>
       </View> */}
-      {workoutTracker.showWorkoutComplete && workoutSummary()}
+      {/* {workoutTracker.showWorkoutComplete && workoutSummary()} */}
       {showSession && sessionReviewModal()}
       {showWorkoutModal === true && workoutModal()}
       <View style={{height: height * 0.05}} />
@@ -734,7 +736,7 @@ const MainWorkoutTracker = () => {
           ]}>
           Start workout
         </Text>
-        <TouchableOpacity
+        {/* <TouchableOpacity
           onPress={() => {
             setEdit(!edit);
           }}>
@@ -746,7 +748,7 @@ const MainWorkoutTracker = () => {
             }}>
             Edit
           </Text>
-        </TouchableOpacity>
+        </TouchableOpacity> */}
       </View>
       <Text
         style={[
