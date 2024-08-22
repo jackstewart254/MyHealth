@@ -18,7 +18,7 @@
                BlueprintIdentifier = "13B07F861A680F5B00A75B9A"
                BuildableName = "MyHealth.app"
                BlueprintName = "MyHealth"
-               ReferencedContainer = "container:I.xcodeproj">
+               ReferencedContainer = "container:Mclean.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -47,7 +47,7 @@
             BlueprintIdentifier = "13B07F861A680F5B00A75B9A"
             BuildableName = "MyHealth.app"
             BlueprintName = "MyHealth"
-            ReferencedContainer = "container:I.xcodeproj">
+            ReferencedContainer = "container:Mclean.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </LaunchAction>
@@ -64,7 +64,7 @@
             BlueprintIdentifier = "13B07F861A680F5B00A75B9A"
             BuildableName = "MyHealth.app"
             BlueprintName = "MyHealth"
-            ReferencedContainer = "container:I.xcodeproj">
+            ReferencedContainer = "container:Mclean.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>

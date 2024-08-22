@@ -40,6 +40,7 @@ import {
 import {differenceInMinutes} from 'date-fns';
 import AddExerciseModal from './addExerciseModal';
 import Duration from './durationComponent';
+import {insertWorkout} from '../../../hooks/insert';
 
 const CreateWorkout = () => {
   const [exerciseArr, setExerciseArr] = useState([]);
@@ -150,7 +151,6 @@ const CreateWorkout = () => {
     const present = exerciseSet.find(
       exercise => exerciseSet.length - 1 === exercise.order,
     );
-    console.log(present);
     const val = generateRandomID();
     let setObject = {
       session_num: workoutTracker.activeWorkoutTemplate.session_num,
@@ -250,8 +250,6 @@ const CreateWorkout = () => {
   };
 
   const updateSet = (id: number, newVal: string, prop: string) => {
-    console.log(prop);
-    console.log(newVal);
     const numericValue = newVal === '' ? '' : parseInt(newVal, 10);
     if (isNaN(numericValue)) {
       return;
@@ -357,8 +355,6 @@ const CreateWorkout = () => {
       set.filter(setObject => setObject.exercise_id === item.id) || [];
 
     const exerciseType = item.type;
-    console.log(exerciseType);
-    console.log(item.bar_type);
 
     return (
       <View style={{flexDirection: 'column', paddingBottom: 10}}>
@@ -761,6 +757,31 @@ const CreateWorkout = () => {
         {workoutTracker.slideView === 'active' && (
           <TouchableOpacity
             onPress={() => {
+              const id = generateRandomID();
+              storeSessionInstance({
+                name: template,
+                exercises: exerciseArr,
+                sets: set,
+                date: workoutTracker.activeWorkoutStartTime,
+                duration: differenceInMinutes(
+                  new Date(),
+                  workoutTracker.activeWorkoutStartTime,
+                ),
+                template_id: workoutTracker.activeWorkoutTemplate.id,
+                id: id,
+              });
+              insertWorkout({
+                name: template,
+                exercises: exerciseArr,
+                sets: set,
+                date: workoutTracker.activeWorkoutStartTime,
+                duration: differenceInMinutes(
+                  new Date(),
+                  workoutTracker.activeWorkoutStartTime,
+                ),
+                template_id: workoutTracker.activeWorkoutTemplate.id,
+                id: id,
+              });
               storeSets(set);
               setActiveWorkoutState({
                 ongoing: false,
@@ -774,18 +795,6 @@ const CreateWorkout = () => {
                   template_id: workoutTracker.activeWorkoutTemplate.id,
                   id: generateRandomID(),
                 },
-              });
-              storeSessionInstance({
-                name: template,
-                exercises: exerciseArr,
-                sets: set,
-                date: workoutTracker.activeWorkoutStartTime,
-                duration: differenceInMinutes(
-                  new Date(),
-                  workoutTracker.activeWorkoutStartTime,
-                ),
-                template_id: workoutTracker.activeWorkoutTemplate.id,
-                id: generateRandomID(),
               });
               setWorkoutTracker({
                 ...workoutTracker,

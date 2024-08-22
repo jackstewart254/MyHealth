@@ -31,13 +31,15 @@ const Login = () => {
 
   useEffect(() => {
     if (fetch === true) {
-      const func = async () => {
-        const res = await addUser({name: email});
-        storeUser(res[0]);
-        setFetch(false);
-        setWorkoutTracker({...workoutTracker, hideLogin: true});
-      };
-      func();
+      if (email.length > 0) {
+        const func = async () => {
+          const res = await addUser({name: email});
+          storeUser(res[0]);
+          setFetch(false);
+          setWorkoutTracker({...workoutTracker, hideLogin: true});
+        };
+        func();
+      }
     }
   }, [fetch]);
 
