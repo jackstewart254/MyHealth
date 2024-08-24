@@ -621,19 +621,23 @@ const MainWorkoutTracker = () => {
             <Text style={[{fontSize: 16}, styles.medSF]}>
               {templatePopup.name}
             </Text>
-            <TouchableOpacity
-              onPress={() => {
-                setWorkoutTracker({
-                  ...workoutTracker,
-                  slideView: 'edit',
-                  animateSlide: true,
-                  currentTemplate: templatePopup,
-                });
-                setShowWorkoutModal(false);
-                setClosePopup(false);
-              }}>
-              <Text style={[{fontSize: 14}, styles.nativeBlueSFMed]}>Edit</Text>
-            </TouchableOpacity>
+            {workoutTracker.activeWorkout === false && (
+              <TouchableOpacity
+                onPress={() => {
+                  setWorkoutTracker({
+                    ...workoutTracker,
+                    slideView: 'edit',
+                    animateSlide: true,
+                    currentTemplate: templatePopup,
+                  });
+                  setShowWorkoutModal(false);
+                  setClosePopup(false);
+                }}>
+                <Text style={[{fontSize: 14}, styles.nativeBlueSFMed]}>
+                  Edit
+                </Text>
+              </TouchableOpacity>
+            )}
           </View>
           {templatePopup?.exercises?.map((item, index) => {
             const sets = templatePopup.sets.filter(
@@ -726,6 +730,7 @@ const MainWorkoutTracker = () => {
           paddingHorizontal: 20,
           alignItems: 'center',
           paddingTop: 20,
+          marginBottom: 10,
         }}>
         <Text
           style={[
@@ -750,13 +755,6 @@ const MainWorkoutTracker = () => {
           </Text>
         </TouchableOpacity> */}
       </View>
-      <Text
-        style={[
-          styles.medSF,
-          {fontSize: 15, paddingTop: 20, paddingHorizontal: 20},
-        ]}>
-        Quick start
-      </Text>
       <View
         style={{
           flexDirection: 'column',

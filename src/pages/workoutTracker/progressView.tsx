@@ -48,6 +48,7 @@ const Progress = () => {
   useEffect(() => {
     const fetch = async () => {
       const res = await fetchSets(selected.id);
+      console.log(res);
       setSets(res);
     };
 
@@ -147,7 +148,7 @@ const Progress = () => {
         />
       </View>
       {search.length > 0 && close === true && renderResults()}
-      {/* <ScrollView showsVerticalScrollIndicator>
+      <ScrollView showsVerticalScrollIndicator>
         {sets.map(item => {
           return (
             <View
@@ -179,11 +180,13 @@ const Progress = () => {
                 }}>
                 {format(item.created_at, 'dd/mm/yyyy')}
               </Text>
-              <Text>{item.weight}</Text>
+              <Text>
+                {item.weight} {item.id}
+              </Text>
             </View>
           );
         })}
-      </ScrollView> */}
+      </ScrollView>
     </View>
   );
 };

@@ -210,10 +210,21 @@ const CreateWorkout = () => {
 
   const handleEndWorkout = () => {
     const id = generateRandomID();
+    let newSet = [];
+
+    for (let i = 0; i < set.length; i++) {
+      let currentObject = set[i];
+      console.log(currentObject.id);
+      let updatedObject = {...currentObject, id: generateRandomID()};
+      newSet.push(updatedObject);
+    }
+
+    console.log(newSet);
+
     storeSessionInstance({
       name: template,
       exercises: exerciseArr,
-      sets: set,
+      sets: newSet,
       date: workoutTracker.activeWorkoutStartTime,
       duration: differenceInMinutes(
         new Date(),
@@ -226,7 +237,7 @@ const CreateWorkout = () => {
       insertWorkout({
         name: template,
         exercises: exerciseArr,
-        sets: set,
+        sets: newSet,
         date: workoutTracker.activeWorkoutStartTime,
         duration: differenceInMinutes(
           new Date(),
@@ -236,7 +247,7 @@ const CreateWorkout = () => {
         id: id,
       });
     }
-    storeSets(set);
+    storeSets(newSet);
     setActiveWorkoutState({
       ongoing: false,
       startTime: '',
