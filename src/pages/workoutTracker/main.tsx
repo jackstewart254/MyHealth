@@ -35,6 +35,8 @@ import {
   format,
   differenceInMinutes,
   differenceInSeconds,
+  startOfWeek,
+  addDays,
 } from 'date-fns';
 import {
   Cross,
@@ -45,6 +47,7 @@ import GenerateRandomID from './generateRandomID';
 import Progress from './progressView';
 import ConnectionStatus from '../../../assets/connectionStatus';
 import useConnectionStatus from '../../../assets/connectionStatus';
+import CircularPercentageTracker from '../../../assets/circularProgress';
 
 const height = Dimensions.get('screen').height;
 const width = Dimensions.get('screen').width;
@@ -105,6 +108,9 @@ const MainWorkoutTracker = () => {
   const [sessionObj, setSessionObj] = useState();
   const [closeSummary, setCloseSummary] = useState(false);
   const [edit, setEdit] = useState(false);
+  const start = startOfWeek(new Date(), {weekStartsOn: 1});
+  const weekDays = Array.from({length: 7}, (_, i) => addDays(start, i));
+  const [weekWorkouts, setWeekWorkouts] = useState([]);
 
   useEffect(() => {
     if (slideView === 0) {
@@ -218,6 +224,90 @@ const MainWorkoutTracker = () => {
       }, 200);
     }
   }, [templatePopup, closePopup]);
+
+  useEffect(() => {
+    const fetch = async () => {
+      const res = await fetchSessions();
+      let workouts = [];
+      for (let i = 0; i < res.length; i++) {
+        const sessionDate = new Date(res[i].date);
+        if (sessionDate >= start) {
+          const present = workouts.find(workout => {
+            if (
+              format(sessionDate, 'dd:MM:yyyy') ===
+              format(new Date(workout.date), 'dd:MM:yyyy')
+            ) {
+              return true;
+            }
+            return false;
+          });
+          if (present === undefined) {
+            workouts.push(res[i]);
+          }
+        }
+      }
+      setWeekWorkouts(workouts);
+    };
+
+    fetch();
+  }, []);
+
+  const renderExerciseDays = () => {
+    const today = new Date();
+    let workouts = [];
+    const days = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
+    for (let i = 0; i < weekDays.length; i++) {
+      const present = weekWorkouts.find(
+        day =>
+          format(new Date(day.date), 'dd:MM:yyyy') ===
+          format(weekDays[i], 'dd:MM:yyyy'),
+      );
+
+      if (present !== undefined) {
+        // If the date is found in weekWorkouts, push 1
+        workouts.push(1);
+      } else {
+        // If not found, push 0
+        workouts.push(0);
+      }
+    }
+
+    return (
+      <View style={{flexDirection: 'row'}}>
+        {workouts.map((present, index) => (
+          <View
+            key={index}
+            style={{
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}>
+            <View
+              style={{
+                width: 24,
+                height: 24,
+                backgroundColor: present === 1 ? '#02BC86' : '#BFBFBF',
+                marginBottom: 2,
+                marginRight: 1,
+              }}
+            />
+            <Text
+              style={{
+                fontFamily: 'SFUIText-Medium',
+                fontSize: 14,
+                color:
+                  format(today, 'dd:MM:yyyy') ===
+                  format(weekDays[index], 'dd:MM:yyyy')
+                    ? '#FFA800'
+                    : '#24262E',
+              }}>
+              {days[index]}
+            </Text>
+          </View>
+        ))}
+      </View>
+    );
+  };
 
   const animatedSlide = useAnimatedStyle(() => {
     return {
@@ -891,35 +981,56 @@ const MainWorkoutTracker = () => {
           },
           animatedSlide,
         ]}>
-        <ScrollView
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={{
-            flexDirection: 'row',
-            paddingBottom: 60,
-            paddingHorizontal: 20,
-            height: '100%',
-            width: width,
-          }}
-          style={{width: width}}>
-          {/* First List */}
-          <View style={{width: '50%', paddingRight: 5}}>
-            <FlatList
-              data={templates.filter((_, index) => index % 2 === 0)}
-              renderItem={renderWorkouts}
-              keyExtractor={(item, index) => index.toString()}
-              scrollEnabled={false} // Disable individual scrolling
-            />
+        <View>
+          <View
+            style={{
+              paddingHorizontal: 20,
+              marginBottom: 10,
+            }}>
+            <View
+              style={{
+                width: '100%',
+                backgroundColor: '#E2E2E2',
+                borderRadius: 5,
+                padding: 10,
+              }}>
+              <View
+                style={{flexDirection: 'row', justifyContent: 'space-between'}}>
+                {renderExerciseDays()}
+                <CircularPercentageTracker value={weekWorkouts.length} />
+              </View>
+            </View>
           </View>
+          <ScrollView
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={{
+              flexDirection: 'row',
+              paddingBottom: 60,
+              paddingHorizontal: 20,
+              height: '100%',
+              width: width,
+            }}
+            style={{width: width}}>
+            {/* First List */}
+            <View style={{width: '50%', paddingRight: 5}}>
+              <FlatList
+                data={templates.filter((_, index) => index % 2 === 0)}
+                renderItem={renderWorkouts}
+                keyExtractor={(item, index) => index.toString()}
+                scrollEnabled={false} // Disable individual scrolling
+              />
+            </View>
 
-          <View style={{width: '50%', paddingLeft: 5}}>
-            <FlatList
-              data={templates.filter((_, index) => index % 2 > 0)}
-              renderItem={renderWorkouts}
-              keyExtractor={(item, index) => index.toString()}
-              scrollEnabled={false} // Disable individual scrolling
-            />
-          </View>
-        </ScrollView>
+            <View style={{width: '50%', paddingLeft: 5}}>
+              <FlatList
+                data={templates.filter((_, index) => index % 2 > 0)}
+                renderItem={renderWorkouts}
+                keyExtractor={(item, index) => index.toString()}
+                scrollEnabled={false} // Disable individual scrolling
+              />
+            </View>
+          </ScrollView>
+        </View>
         <ScrollView
           showsVerticalScrollIndicator={false}
           contentContainerStyle={{
