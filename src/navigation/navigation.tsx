@@ -29,7 +29,7 @@ const Navigation = () => {
 
   return (
     <View style={{width: width, height: height}}>
-      {userValid === true && <Login />}
+      {/* <Login /> */}
       <MainWorkoutTracker />
     </View>
   );

@@ -4,6 +4,7 @@ import {
   Dimensions,
   TextInput,
   TouchableOpacity,
+  Alert,
 } from 'react-native';
 import React, {useState, useEffect} from 'react';
 import {addUser, handleLogin, handleSignup} from './hooks';
@@ -17,16 +18,24 @@ const Login = () => {
   const [press, setPress] = useState(0);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [showPassword, setShowPassword] = useState(false);
+  const [showPassword, setShowPassword] = useState(true);
   const [fetch, setFetch] = useState(false);
   const {workoutTracker, setWorkoutTracker} = useWorkoutTracker();
 
   const send = async () => {
-    await handleSignup({email: email, password: password});
+    if (email.length === 0 || password.length === 0) {
+      Alert.alert('Email or Password are empty');
+    } else {
+      await handleSignup({email: email, password: password});
+    }
   };
 
   const sign = async () => {
-    await handleLogin({email: email, password: password});
+    if (email.length === 0 || password.length === 0) {
+      Alert.alert('Email or Password are empty');
+    } else {
+      await handleLogin({email: email, password: password});
+    }
   };
 
   useEffect(() => {
@@ -50,7 +59,12 @@ const Login = () => {
 
   const signup = () => {
     return (
-      <View style={{flexDirection: 'column', alignItems: 'center'}}>
+      <View
+        style={{
+          flexDirection: 'column',
+          alignItems: 'center',
+          width: width * 0.6,
+        }}>
         <TextInput
           value={email}
           onChangeText={text => {
@@ -71,144 +85,100 @@ const Login = () => {
             color: 'white',
           }}
         />
-        <TextInput
-          value={password}
-          onChangeText={text => {
-            setPassword(text);
-          }}
-          textContentType="password"
-          autoCapitalize="none"
-          placeholder="Password"
-          placeholderTextColor="white"
+        <View
           style={{
-            fontSize: 14,
-            fontFamily: 'SFUIText-Regular',
+            width: '100%',
             borderWidth: 1,
             borderColor: 'white',
+            marginBottom: 10,
             borderRadius: 5,
-            width: width * 0.6,
-            padding: 10,
-            marginBottom: 10,
-            color: 'white',
-          }}
-        />
-        <TouchableOpacity
-          onPress={send}
-          style={{
-            width: width * 0.6,
-            padding: 10,
-            alignItems: 'center',
-            justifyContent: 'center',
-            backgroundColor: '#00B0FF',
-            borderRadius: 10,
-            marginBottom: 10,
+            flexDirection: 'row',
+            justifyContent: 'space-between',
           }}>
-          <Text
+          <TextInput
+            value={password}
+            onChangeText={text => {
+              setPassword(text);
+            }}
+            textContentType="password"
+            autoCapitalize="none"
+            placeholder="Password"
+            placeholderTextColor="white"
+            secureTextEntry={showPassword}
             style={{
               fontSize: 14,
-              fontFamily: 'SFUIText-Medium',
-              color: '#2B384B',
-            }}>
-            Sign up
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          onPress={() => {
-            setPress(0);
-          }}
-          style={{
-            alignItems: 'center',
-            justifyContent: 'center',
-            paddingHorizontal: 20,
-            paddingVertical: 10,
-            backgroundColor: '#D9D9D9',
-            borderRadius: 10,
-          }}>
-          <Text>Back</Text>
-        </TouchableOpacity>
-      </View>
-    );
-  };
-
-  const signin = () => {
-    return (
-      <View style={{flexDirection: 'column', alignItems: 'center'}}>
-        <TextInput
-          value={email}
-          onChangeText={text => {
-            setEmail(text);
-          }}
-          placeholder="Email"
-          placeholderTextColor="white"
-          autoCapitalize="none"
-          style={{
-            fontSize: 14,
-            fontFamily: 'SFUIText-Regular',
-            borderWidth: 1,
-            borderColor: 'white',
-            borderRadius: 5,
-            width: width * 0.6,
-            marginBottom: 10,
-            padding: 10,
-            color: 'white',
-          }}
-        />
-        <TextInput
-          value={password}
-          onChangeText={text => {
-            setPassword(text);
-          }}
-          placeholder="Password"
-          textContentType="password"
-          placeholderTextColor="white"
-          autoCapitalize="none"
-          // secureTextEntry
-          style={{
-            fontSize: 14,
-            fontFamily: 'SFUIText-Regular',
-            borderWidth: 1,
-            borderColor: 'white',
-            borderRadius: 5,
-            width: width * 0.6,
-            padding: 10,
-            marginBottom: 10,
-            color: 'white',
-          }}
-        />
-        <TouchableOpacity
-          onPress={sign}
-          style={{
-            width: width * 0.6,
-            padding: 10,
-            alignItems: 'center',
-            justifyContent: 'center',
-            backgroundColor: '#00B0FF',
-            borderRadius: 10,
-            marginBottom: 10,
-          }}>
-          <Text
+              fontFamily: 'SFUIText-Regular',
+              borderRadius: 5,
+              color: 'white',
+              padding: 10,
+              width: '77%',
+            }}
+          />
+          <TouchableOpacity
             style={{
-              fontSize: 14,
-              fontFamily: 'SFUIText-Medium',
-              color: '#2B384B',
+              padding: 10,
+            }}
+            onPress={() => {
+              setShowPassword(!showPassword);
             }}>
-            Sign in
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          onPress={() => {
-            setPress(0);
-          }}
+            <Text
+              style={{
+                fontSize: 14,
+                fontFamily: 'SFUIText-Light',
+                color: 'white',
+              }}>
+              Show
+            </Text>
+          </TouchableOpacity>
+        </View>
+        <View
           style={{
+            flexDirection: 'row',
+            width: '100%',
             alignItems: 'center',
             justifyContent: 'center',
-            paddingHorizontal: 20,
-            paddingVertical: 10,
-            backgroundColor: '#D9D9D9',
-            borderRadius: 10,
           }}>
-          <Text>Back</Text>
-        </TouchableOpacity>
+          <TouchableOpacity
+            onPress={send}
+            style={{width: '50%', paddingRight: 5}}>
+            <View
+              style={{
+                padding: 10,
+                alignItems: 'center',
+                justifyContent: 'center',
+                backgroundColor: '#00B0FF',
+                borderRadius: 10,
+              }}>
+              <Text
+                style={{
+                  fontFamily: 'SFUIText-Medium',
+                  color: '#2B384B',
+                }}>
+                Sign up
+              </Text>
+            </View>
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={sign}
+            style={{width: '50%', paddingLeft: 5}}>
+            <View
+              style={{
+                padding: 10,
+                alignItems: 'center',
+                justifyContent: 'center',
+                backgroundColor: '#00B0FF',
+                borderRadius: 10,
+              }}>
+              <Text
+                style={{
+                  fontFamily: 'SFUIText-Medium',
+                  color: '#2B384B',
+                }}>
+                Sign in
+              </Text>
+            </View>
+          </TouchableOpacity>
+        </View>
       </View>
     );
   };
@@ -224,92 +194,7 @@ const Login = () => {
         alignItems: 'center',
         justifyContent: 'center',
       }}>
-      <TextInput
-        value={email}
-        onChangeText={text => {
-          setEmail(text);
-        }}
-        placeholder="Name"
-        textContentType="password"
-        placeholderTextColor="white"
-        autoCapitalize="none"
-        // secureTextEntry
-        style={{
-          fontSize: 14,
-          fontFamily: 'SFUIText-Regular',
-          borderWidth: 1,
-          borderColor: 'white',
-          borderRadius: 5,
-          width: width * 0.6,
-          padding: 10,
-          marginBottom: 10,
-          color: 'white',
-        }}
-      />
-      <TouchableOpacity
-        onPress={() => {
-          setFetch(true);
-        }}
-        style={{
-          width: width * 0.6,
-          padding: 10,
-          alignItems: 'center',
-          justifyContent: 'center',
-          backgroundColor: '#00B0FF',
-          borderRadius: 10,
-          marginBottom: 10,
-        }}>
-        <Text
-          style={{
-            fontSize: 14,
-            fontFamily: 'SFUIText-Medium',
-            color: '#2B384B',
-          }}>
-          Next
-        </Text>
-      </TouchableOpacity>
-      {/* {press === 0 ? (
-        <View style={{flexDirection: 'row', alignItems: 'center'}}>
-          <TouchableOpacity
-            onPress={() => {
-              setPress(1);
-            }}>
-            <Text
-              style={{
-                fontSize: 20,
-                color: 'white',
-                fontFamily: 'SFUIText-Regular',
-                padding: 20,
-              }}>
-              Sign up
-            </Text>
-          </TouchableOpacity>
-          <View
-            style={{
-              width: 2,
-              height: 20,
-              backgroundColor: 'white',
-              borderRadius: 10,
-            }}
-          />
-          <TouchableOpacity
-            onPress={() => {
-              setPress(2);
-            }}>
-            <Text
-              style={{
-                fontSize: 20,
-                color: 'white',
-                fontFamily: 'SFUIText-Regular',
-                padding: 20,
-              }}>
-              Sign in
-            </Text>
-          </TouchableOpacity>
-        </View>
-      ) : (
-        <View>{(press === 1 && signup()) || (press === 2 && signin())}</View>
-      )} */}
+      {signup()}
     </View>
   );
 };

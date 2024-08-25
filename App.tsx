@@ -47,9 +47,9 @@ const App = () => {
     }
   }, [isConnected]);
 
-  useEffect(() => {
-    fetchToken();
-  }, []);
+  // useEffect(() => {
+  //   fetchToken();
+  // }, []);
 
   return (
     <QueryClientProvider client={queryClient}>

@@ -8,10 +8,12 @@ const handleSignup = async ({
   email: string;
   password: string;
 }) => {
+  console.log('sign up');
   let {data, error} = await supabase.auth.signUp({
     email: email,
     password: password,
   });
+  console.log(data, error);
 };
 
 const handleLogin = async ({

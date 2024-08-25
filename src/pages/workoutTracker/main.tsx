@@ -250,7 +250,7 @@ const MainWorkoutTracker = () => {
     };
 
     fetch();
-  }, []);
+  }, [workoutTracker.activeWorkout]);
 
   const renderExerciseDays = () => {
     const today = new Date();

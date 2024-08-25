@@ -9,6 +9,7 @@ import {
   TouchableOpacity,
   FlatList,
   ScrollView,
+  Alert,
 } from 'react-native';
 import {
   ChevronDown,
@@ -273,7 +274,7 @@ const CreateWorkout = () => {
   const handleSavingWorkout = async () => {
     const genId = generateRandomID();
     if (template.length < 1) {
-      console.error("Error: Can't save a template without a name");
+      Alert.alert('You must name your workout!');
     } else {
       const obj = {
         name: template,
