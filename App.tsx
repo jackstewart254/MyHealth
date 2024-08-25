@@ -1,6 +1,6 @@
 import MainWorkoutTracker from './src/pages/workoutTracker/main';
 import React, {useEffect, useState} from 'react';
-import {View, Text} from 'react-native';
+import {View, Text, Alert} from 'react-native';
 import NetInfo from '@react-native-community/netinfo';
 import {QueryClient, QueryClientProvider} from '@tanstack/react-query';
 import 'react-native-url-polyfill/auto';
@@ -11,12 +11,18 @@ import Navigation from './src/navigation/navigation';
 import {GestureHandlerRootView} from 'react-native-gesture-handler';
 import Login from './auth/login';
 import {fetchSessions, handleCheckSession} from './hooks/fetch';
-
+import messaging, {getToken} from '@react-native-firebase/messaging';
 const queryClient = new QueryClient();
 
 const App = () => {
   const [connectionType, setConnectionType] = useState(null);
   const [isConnected, setIsConnected] = useState(null);
+
+  const fetchToken = async () => {
+    await messaging().registerDeviceForRemoteMessages();
+    const token = await messaging().getToken();
+    console.log(token);
+  };
 
   useEffect(() => {
     const fetch = async () => {
@@ -40,6 +46,10 @@ const App = () => {
       setStoreExercise();
     }
   }, [isConnected]);
+
+  useEffect(() => {
+    fetchToken();
+  }, []);
 
   return (
     <QueryClientProvider client={queryClient}>
