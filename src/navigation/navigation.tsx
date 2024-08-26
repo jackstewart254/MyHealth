@@ -17,20 +17,27 @@ const height = Dimensions.get('screen').height;
 const Navigation = () => {
   const {workoutTracker, setWorkoutTracker} = useWorkoutTracker();
   const [userValid, setUserValid] = useState(false);
+  const [showLogin, setShowLogin] = useState(false);
 
   useEffect(() => {
-    // clearKey('user');
-    const lunc = async () => {
-      const res = await fetchUser();
-      setUserValid(res === null && true);
-    };
-    lunc();
+    if (workoutTracker.hideLogin === true) {
+      setShowLogin(true);
+    }
   }, [workoutTracker.hideLogin]);
+
+  useEffect(() => {
+    const lunc = async () => {
+      const res = JSON.parse(await fetchUser());
+      setShowLogin(res !== null && true);
+    };
+
+    lunc();
+  }, []);
 
   return (
     <View style={{width: width, height: height}}>
-      {/* <Login /> */}
-      <MainWorkoutTracker />
+      {showLogin === false && <Login />}
+      {showLogin === true && <MainWorkoutTracker />}
     </View>
   );
 };

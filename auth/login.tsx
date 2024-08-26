@@ -10,6 +10,8 @@ import React, {useState, useEffect} from 'react';
 import {addUser, handleLogin, handleSignup} from './hooks';
 import {clearKey, fetchUser, storeUser} from '../localStorage/insert';
 import {useWorkoutTracker} from '../contexts/workoutTracker';
+import supabase from '../supabase';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const width = Dimensions.get('screen').width;
 const height = Dimensions.get('screen').height;
@@ -34,23 +36,14 @@ const Login = () => {
     if (email.length === 0 || password.length === 0) {
       Alert.alert('Email or Password are empty');
     } else {
-      await handleLogin({email: email, password: password});
-    }
-  };
-
-  useEffect(() => {
-    if (fetch === true) {
-      if (email.length > 0) {
-        const func = async () => {
-          const res = await addUser({name: email});
-          storeUser(res[0]);
-          setFetch(false);
-          setWorkoutTracker({...workoutTracker, hideLogin: true});
-        };
-        func();
+      const res = await handleLogin({email: email, password: password});
+      if (res === false) {
+        Alert.alert('Erro');
+      } else {
+        setWorkoutTracker({...workoutTracker, hideLogin: true});
       }
     }
-  }, [fetch]);
+  };
 
   useEffect(() => {
     setPassword('');

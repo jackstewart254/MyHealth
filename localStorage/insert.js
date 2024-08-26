@@ -120,6 +120,10 @@ const fetchUser = async () => {
   return res;
 };
 
+const storeFCM = async fcm => {
+  await AsyncStorage.setItem('fcm', fcm);
+};
+
 export {
   setStoreExercise,
   clearStorage,
@@ -133,4 +137,5 @@ export {
   storeNewExercise,
   storeUser,
   fetchUser,
+  storeFCM,
 };
