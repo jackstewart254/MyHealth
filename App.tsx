@@ -1,6 +1,6 @@
 import MainWorkoutTracker from './src/pages/workoutTracker/main';
 import React, {useEffect, useState} from 'react';
-import {View, Text, Alert} from 'react-native';
+import {View, Text, Alert, Platform} from 'react-native';
 import NetInfo from '@react-native-community/netinfo';
 import {QueryClient, QueryClientProvider} from '@tanstack/react-query';
 import 'react-native-url-polyfill/auto';
@@ -10,7 +10,7 @@ import {fetchActiveWorkout} from './localStorage/fetch';
 import Navigation from './src/navigation/navigation';
 import {GestureHandlerRootView} from 'react-native-gesture-handler';
 import Login from './auth/login';
-import {fetchSessions, handleCheckSession} from './hooks/fetch';
+import {checkProfiles, fetchSessions, handleCheckSession} from './hooks/fetch';
 import messaging from '@react-native-firebase/messaging';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {localNotification} from './assets/localNotification';
@@ -54,26 +54,37 @@ const App = () => {
   }, [isConnected]);
 
   const getFCMToken = async () => {
-    const fcm = await AsyncStorage.getItem('fcm');
-    if (fcm === null) {
-      const fcmToken = await messaging().getToken();
-      setToken(fcmToken);
-      if (fcmToken) {
-        console.log('FCM Token:', fcmToken);
-        storeFCM(fcmToken);
-      } else {
-        console.log('Failed to get FCM token');
+    if (Platform.OS === 'ios') {
+      await messaging().registerDeviceForRemoteMessages();
+      const apnsToken = await messaging().getAPNSToken();
+      if (apnsToken) {
+        const fcm = await AsyncStorage.getItem('fcm');
+        if (fcm === null) {
+          const fcmToken = await messaging().getToken();
+          if (fcmToken) {
+            storeFCM(fcmToken);
+          } else {
+            console.log('Failed to get FCM token');
+          }
+        }
       }
-    } else {
-      setToken(fcm);
     }
   };
+
+  useEffect(() => {}, [token]);
+
+  useEffect(() => {
+    const check = async () => {
+      await checkProfiles();
+    };
+
+    check();
+  }, []);
 
   return (
     <QueryClientProvider client={queryClient}>
       <WorkoutTrackerProvider>
         <GestureHandlerRootView>
-          <Text style={{height: 140, paddingTop: 60}}>{token}</Text>
           <Navigation />
         </GestureHandlerRootView>
       </WorkoutTrackerProvider>

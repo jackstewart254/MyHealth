@@ -37,6 +37,7 @@ export const WorkoutTrackerProvider = ({ children }) => {
     view: 'home',
     close: false,
     hideLogin: false,
+    logOut: false,
   });
 
   return (

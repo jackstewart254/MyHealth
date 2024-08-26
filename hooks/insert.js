@@ -1,3 +1,4 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import {fetchUser} from '../localStorage/insert';
 import supabase from '../supabase';
 import {fetchExercises} from './fetch';
@@ -20,7 +21,7 @@ const insertWorkout = async session => {
   const exerciseSets = session.sets;
   const sessionExercises = session.exercises;
   const exercises = await fetchExercises();
-  const user = JSON.parse(await fetchUser());
+  const user = JSON.parse(await AsyncStorage.getItem('auth'));
   const newExercises = [];
   const exerciseIDs = [];
   let newSetIds = [];
@@ -66,7 +67,7 @@ const insertWorkout = async session => {
         template_id: session.template_id,
         name: session.name,
         duration: session.duration,
-        user_id: user.id,
+        user_id: user.user.id,
       },
     ])
     .select();

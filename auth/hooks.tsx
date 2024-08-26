@@ -1,8 +1,9 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {fetchUser, storeUser} from '../localStorage/insert';
+import {fetchUser, storeAuth, storeUser} from '../localStorage/insert';
 import supabase from '../supabase';
 
 const insertProfiles = async (id, fcm) => {
+  console.log('insert profile', fcm);
   const {data, error} = await supabase
     .from('profiles')
     .insert([{id: id, fcm_token: fcm}])
@@ -40,16 +41,17 @@ const handleLogin = async ({
     email: email,
     password: password,
   });
-  storeUser(data);
-  if (error === null) {
-    const fcm = await AsyncStorage.getItem('fcm');
-    if (fcm?.length > 0) {
-      await insertProfiles(data.session?.user.id, fcm);
-    }
-    return data;
-  } else {
-    return false;
-  }
+  console.log(data);
+  storeAuth(data);
+  // if (error === null) {
+  //   const fcm = await AsyncStorage.getItem('fcm');
+  //   if (fcm?.length > 0) {
+  //     await insertProfiles(data.session?.user.id, fcm);
+  //   }
+  //   return data;
+  // } else {
+  //   return false;
+  // }
 };
 
 const addUser = async ({name}: {name: string}) => {
@@ -60,4 +62,4 @@ const addUser = async ({name}: {name: string}) => {
   return data;
 };
 
-export {handleLogin, handleSignup, addUser};
+export {handleLogin, handleSignup, addUser, insertProfiles};

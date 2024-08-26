@@ -1,6 +1,8 @@
 import supabase from '../supabase';
 import {fetchSessions} from '../localStorage/fetch';
 import {insertWorkout} from './insert';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import {insertProfiles} from '../auth/hooks';
 
 const fetchExercises = async () => {
   const {data: exercises} = await supabase.from('exercises').select('*');
@@ -23,4 +25,16 @@ const handleCheckSession = async () => {
   }
 };
 
-export {fetchExercises, handleCheckSession};
+const checkProfiles = async () => {
+  const user = JSON.parse(await AsyncStorage.getItem('auth'));
+  const fcm = await AsyncStorage.getItem('fcm');
+  const {data, error} = await supabase.from('profiles').select('*');
+  if (fcm !== null && user !== null) {
+    const present = data.find(id => id.id === user.user.id);
+    if (present === undefined) {
+      await insertProfiles(user.user.id, fcm);
+    }
+  }
+};
+
+export {fetchExercises, handleCheckSession, checkProfiles};

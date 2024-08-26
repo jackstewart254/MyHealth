@@ -33,14 +33,18 @@ const Login = () => {
   };
 
   const sign = async () => {
-    if (email.length === 0 || password.length === 0) {
-      Alert.alert('Email or Password are empty');
+    if (workoutTracker.logOut === true) {
+      Alert.alert('Restart your app');
     } else {
-      const res = await handleLogin({email: email, password: password});
-      if (res === false) {
-        Alert.alert('Erro');
+      if (email.length === 0 || password.length === 0) {
+        Alert.alert('Email or Password are empty');
       } else {
-        setWorkoutTracker({...workoutTracker, hideLogin: true});
+        const res = await handleLogin({email: email, password: password});
+        if (res === false) {
+          Alert.alert('Error');
+        } else {
+          setWorkoutTracker({...workoutTracker, hideLogin: true});
+        }
       }
     }
   };

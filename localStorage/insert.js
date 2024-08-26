@@ -121,7 +121,12 @@ const fetchUser = async () => {
 };
 
 const storeFCM = async fcm => {
+  console.log('handle', fcm)
   await AsyncStorage.setItem('fcm', fcm);
+};
+
+const storeAuth = async auth => {
+  await AsyncStorage.setItem('auth', JSON.stringify(auth));
 };
 
 export {
@@ -138,4 +143,5 @@ export {
   storeUser,
   fetchUser,
   storeFCM,
+  storeAuth,
 };
