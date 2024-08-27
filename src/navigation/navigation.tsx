@@ -64,7 +64,7 @@ const Navigation = () => {
           bottom: 30,
           width: width,
           alignItems: 'center',
-          zIndex: 1,
+          zIndex: 0,
           opacity: 1,
         }}>
         <View
@@ -119,6 +119,63 @@ const Navigation = () => {
     );
   };
 
+  const altTabNavigator = () => {
+    return (
+      <View
+        style={{
+          position: 'absolute',
+          bottom: 30,
+          width: width,
+          alignItems: 'center',
+          zIndex: 0,
+          opacity: 0.5,
+        }}>
+        <View
+          style={{
+            flexDirection: 'row',
+            backgroundColor: '#E2E2E2',
+            overflow: 'hidden',
+            borderRadius: 10,
+          }}>
+          <View
+            style={{
+              width: 80,
+              height: 60,
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}>
+            <Text
+              style={{
+                fontFamily:
+                  view === 0 ? 'SFUIText-Semibold' : 'SFUIText-Medium',
+                color: '#24262E',
+                fontSize: view === 0 ? 18 : 16,
+              }}>
+              Track
+            </Text>
+          </View>
+          <View
+            style={{
+              width: 80,
+              height: 60,
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}>
+            <Text
+              style={{
+                fontFamily:
+                  view === 1 ? 'SFUIText-Semibold' : 'SFUIText-Medium',
+                color: '#24262E',
+                fontSize: view === 1 ? 18 : 16,
+              }}>
+              Profile
+            </Text>
+          </View>
+        </View>
+      </View>
+    );
+  };
+
   return (
     <View style={{width: width, height: height, position: 'relative'}}>
       {showLogin === false && <Login />}
@@ -136,9 +193,13 @@ const Navigation = () => {
           <Profile />
         </Animated.View>
       )}
-      {showLogin === true &&
-        workoutTracker.animateSlide === false &&
-        tabNavigator()}
+      {showLogin === true && workoutTracker.animateSlide === true
+        ? null
+        : workoutTracker.showWorkoutComplete === false &&
+          workoutTracker.showSession === false &&
+          workoutTracker.workoutModal === false
+        ? tabNavigator()
+        : altTabNavigator()}
     </View>
   );
 };

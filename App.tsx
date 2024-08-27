@@ -22,6 +22,7 @@ const App = () => {
   const [connectionType, setConnectionType] = useState(null);
   const [isConnected, setIsConnected] = useState(null);
   const [token, setToken] = useState();
+  const [logged, setLogged] = useState(false);
 
   useEffect(() => {
     const initializeFCM = async () => {
@@ -92,6 +93,15 @@ const App = () => {
   useEffect(() => {}, [token]);
 
   useEffect(() => {
+    const fetchUser = async () => {
+      const res = JSON.parse(await AsyncStorage.getItem('auth'));
+      setLogged(res === null ? false : true);
+    };
+
+    fetchUser();
+  }, []);
+
+  useEffect(() => {
     const uploadSessions = async () => {
       const res = JSON.parse(await AsyncStorage.getItem('sessions'));
       for (let i = 0; i < res?.length; i++) {
@@ -107,10 +117,12 @@ const App = () => {
       await setStoreExercise();
     };
 
-    store();
-    uploadSessions();
-    check();
-  }, []);
+    if (logged === true) {
+      store();
+      uploadSessions();
+      check();
+    }
+  }, [logged]);
 
   return (
     <QueryClientProvider client={queryClient}>

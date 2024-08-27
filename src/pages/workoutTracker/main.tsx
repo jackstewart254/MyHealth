@@ -208,6 +208,7 @@ const MainWorkoutTracker = () => {
       opacity.value = withTiming(1, {duration: 200});
     }
     if (closePopup === true) {
+      setWorkoutTracker({...workoutTracker, workoutModal: false});
       opacity.value = withTiming(0, {duration: 200});
       const timer = setTimeout(() => {
         setTemplatePopup({
@@ -339,6 +340,7 @@ const MainWorkoutTracker = () => {
     };
     setTemplatePopup(obj);
     setShowWorkoutModal(true);
+    setWorkoutTracker({...workoutTracker, workoutModal: true});
   };
 
   const getTemplate = async () => {
@@ -363,6 +365,7 @@ const MainWorkoutTracker = () => {
   const handleSessionPress = session => {
     setSessionObj(session);
     setShowSession(true);
+    setWorkoutTracker({...workoutTracker, showSession: true});
   };
 
   const renderSessions = ({item}) => {
@@ -661,6 +664,7 @@ const MainWorkoutTracker = () => {
         <Pressable
           onPress={() => {
             setShowSession(false);
+            setWorkoutTracker({...workoutTracker, showSession: false});
           }}
           style={{
             width: '100%',
@@ -697,6 +701,7 @@ const MainWorkoutTracker = () => {
             <TouchableOpacity
               onPress={() => {
                 setShowSession(false);
+                setWorkoutTracker({...workoutTracker, showSession: false});
               }}>
               <Cross width={12} height={12} color={'white'} />
             </TouchableOpacity>
@@ -886,6 +891,7 @@ const MainWorkoutTracker = () => {
                     slideView: 'edit',
                     animateSlide: true,
                     currentTemplate: templatePopup,
+                    workoutModal: false,
                   });
                   setShowWorkoutModal(false);
                   setClosePopup(false);
@@ -919,6 +925,7 @@ const MainWorkoutTracker = () => {
                   activeWorkout: true,
                   activeWorkoutTemplate: templatePopup,
                   activeWorkoutStartTime: new Date(),
+                  workoutModal: false,
                 });
                 setShowWorkoutModal(false);
                 setClosePopup(false);

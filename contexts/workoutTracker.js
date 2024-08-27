@@ -39,7 +39,7 @@ export const WorkoutTrackerProvider = ({ children }) => {
     hideLogin: false,
     logOut: false,
     workoutModal: false,
-    
+    showSession: false,
   });
 
   return (

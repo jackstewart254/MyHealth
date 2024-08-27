@@ -28,7 +28,11 @@ import Animated, {
   runOnJS,
 } from 'react-native-reanimated';
 import {format} from 'date-fns/format';
-import {getExercise, getTemplates} from '../../../localStorage/fetch';
+import {
+  fetchSets,
+  getExercise,
+  getTemplates,
+} from '../../../localStorage/fetch';
 import {
   checkIfPresent,
   setActiveWorkoutState,
@@ -44,6 +48,7 @@ import Duration from './durationComponent';
 import {insertWorkout} from '../../../hooks/insert';
 import ConnectionStatus from '../../components/connectionStatus';
 import useConnectionStatus from '../../components/connectionStatus';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const CreateWorkout = () => {
   const [exerciseArr, setExerciseArr] = useState([]);
@@ -140,6 +145,44 @@ const CreateWorkout = () => {
     }
   }, [workoutTracker.exercise]);
 
+  const getPrevious = async (xId, order) => {
+    const current = new Date();
+    const sessions = JSON.parse(await AsyncStorage.getItem('sessions'));
+
+    if (!sessions || sessions.length === 0) {
+      console.log('No sessions found');
+      return;
+    }
+
+    let closestSession = null;
+    let smallestDifference = Infinity;
+
+    for (let i = 0; i < sessions.length; i++) {
+      const sessionTime = new Date(sessions[i].date);
+      const difference = Math.abs(current - sessionTime);
+      const exercise = sessions[i].exercises.find(x => x.id === xId);
+      const xSets = sessions[i].sets.filter(set => set.exercise_id === xId);
+
+      if (
+        difference < smallestDifference &&
+        exercise !== undefined &&
+        xSets.length > 0
+      ) {
+        smallestDifference = difference;
+        closestSession = sessions[i];
+      }
+    }
+    const sets = closestSession.sets.filter(x => x.order === order);
+    if (sets.length > 0) {
+      const one = sets.find(o => o.order === order);
+      if (order !== undefined) {
+        return one;
+      } else {
+        return null;
+      }
+    }
+  };
+
   const setTemplateName = (name: string) => {
     setTemplate(name);
   };
@@ -152,11 +195,23 @@ const CreateWorkout = () => {
     return parseInt(id, 10);
   };
 
-  const handleAddSet = (id: number) => {
+  const handleAddSet = async (id: number, type) => {
     const exerciseSet = set.filter(item => id === item.exercise_id);
     const present = exerciseSet.find(
       exercise => exerciseSet.length - 1 === exercise.order,
     );
+    const res = await getPrevious(id, exerciseSet.length);
+    const prev =
+      res !== undefined
+        ? type === 0
+          ? String(res.weight) + 'kg' + ' x ' + String(res.reps)
+          : type === 1
+          ? String(res.distance) + 'km' + ' ' + String(res.duration)
+          : type === 2
+          ? String(res.weight) + 'kg' + ' x ' + String(res.weight)
+          : String(res.duration) + 'seconds'
+        : null;
+
     const val = generateRandomID();
     let setObject = {
       session_num: workoutTracker.activeWorkoutTemplate.session_num,
@@ -170,6 +225,7 @@ const CreateWorkout = () => {
       distance: present !== undefined ? present.distance : '0',
       duration: present !== undefined ? present.duration : '0',
       calories: '',
+      previous: prev,
     };
     let newArr = [...set, setObject];
     newArr.sort((a, b) => a.order - b.order);
@@ -533,6 +589,7 @@ const CreateWorkout = () => {
                 flexDirection: 'row',
                 justifyContent: 'space-between',
                 paddingBottom: 10,
+                alignItems: 'center',
               }}>
               <View
                 style={{
@@ -558,7 +615,14 @@ const CreateWorkout = () => {
                   alignItems: 'center',
                   justifyContent: 'center',
                 }}>
-                <Text style={[styles.medSF, {fontSize: 14}]}></Text>
+                <Text
+                  style={{
+                    fontSize: 14,
+                    color: 'white',
+                    fontFamily: 'SFUIText-Semibold',
+                  }}>
+                  {set.previous === null ? 'n/a' : set.previous}
+                </Text>
               </View>
               <View
                 style={{
@@ -691,7 +755,7 @@ const CreateWorkout = () => {
             borderRadius: 5,
           }}
           onPress={() => {
-            handleAddSet(item.id);
+            handleAddSet(item.id, item.type);
           }}>
           <Text style={[styles.medSF, {fontSize: 14}]}>Add set</Text>
         </TouchableOpacity>

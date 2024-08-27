@@ -23,12 +23,18 @@ const Login = () => {
   const [showPassword, setShowPassword] = useState(true);
   const [fetch, setFetch] = useState(false);
   const {workoutTracker, setWorkoutTracker} = useWorkoutTracker();
+  const [signupPressed, setSignupPressed] = useState(false);
 
   const send = async () => {
     if (email.length === 0 || password.length === 0) {
-      Alert.alert('Email or Password are empty');
+      Alert.alert('Email or Password is empty');
     } else {
-      await handleSignup({email: email, password: password});
+      const res = await handleSignup({email: email, password: password});
+      if (res === null) {
+        setSignupPressed(true);
+      } else {
+        Alert.alert('Error, try again later');
+      }
     }
   };
 
@@ -37,7 +43,7 @@ const Login = () => {
       Alert.alert('Restart your app');
     } else {
       if (email.length === 0 || password.length === 0) {
-        Alert.alert('Email or Password are empty');
+        Alert.alert('Email or Password is empty');
       } else {
         const res = await handleLogin({email: email, password: password});
         if (res === false) {
@@ -135,26 +141,48 @@ const Login = () => {
             alignItems: 'center',
             justifyContent: 'center',
           }}>
-          <TouchableOpacity
-            onPress={send}
-            style={{width: '50%', paddingRight: 5}}>
-            <View
-              style={{
-                padding: 10,
-                alignItems: 'center',
-                justifyContent: 'center',
-                backgroundColor: '#00B0FF',
-                borderRadius: 10,
-              }}>
-              <Text
+          {signupPressed === false ? (
+            <TouchableOpacity
+              onPress={send}
+              style={{width: '50%', paddingRight: 5}}>
+              <View
                 style={{
-                  fontFamily: 'SFUIText-Medium',
-                  color: '#2B384B',
+                  padding: 10,
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  backgroundColor: '#00B0FF',
+                  borderRadius: 10,
                 }}>
-                Sign up
-              </Text>
+                <Text
+                  style={{
+                    fontFamily: 'SFUIText-Medium',
+                    color: '#2B384B',
+                  }}>
+                  Sign up
+                </Text>
+              </View>
+            </TouchableOpacity>
+          ) : (
+            <View style={{width: '50%', paddingRight: 5}}>
+              <View
+                style={{
+                  padding: 10,
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  backgroundColor: '#D9D9D9',
+                  borderRadius: 10,
+                }}>
+                <Text
+                  style={{
+                    fontFamily: 'SFUIText-Medium',
+                    color: '#2B384B',
+                  }}>
+                  Sign up
+                </Text>
+              </View>
             </View>
-          </TouchableOpacity>
+          )}
+
           <TouchableOpacity
             onPress={sign}
             style={{width: '50%', paddingLeft: 5}}>
@@ -191,18 +219,6 @@ const Login = () => {
         alignItems: 'center',
         justifyContent: 'center',
       }}>
-      <Text
-        style={{
-          fontSize: 14,
-          fontFamily: 'SFUIText-Regular',
-          color: 'white',
-          width: width * 0.6,
-          paddingBottom: 10,
-          textAlign: 'center',
-        }}>
-        Hey, after pressing the signup link come back and login. The sign up
-        link works, but doesn't display anything
-      </Text>
       {signup()}
     </View>
   );

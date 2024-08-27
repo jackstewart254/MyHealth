@@ -23,6 +23,7 @@ const handleSignup = async ({
     email: email,
     password: password,
   });
+  return error;
 };
 
 const handleLogin = async ({
