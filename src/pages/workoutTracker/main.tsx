@@ -45,9 +45,9 @@ import {
 } from '../../../assets/svgs/workoutTrackerSvgs';
 import GenerateRandomID from './generateRandomID';
 import Progress from './progressView';
-import ConnectionStatus from '../../../assets/connectionStatus';
-import useConnectionStatus from '../../../assets/connectionStatus';
-import CircularPercentageTracker from '../../../assets/circularProgress';
+import ConnectionStatus from '../../components/connectionStatus';
+import useConnectionStatus from '../../components/connectionStatus';
+import CircularPercentageTracker from '../../components/circularProgress';
 
 const height = Dimensions.get('screen').height;
 const width = Dimensions.get('screen').width;
@@ -250,7 +250,7 @@ const MainWorkoutTracker = () => {
     };
 
     fetch();
-  }, [workoutTracker.activeWorkout]);
+  }, [workoutTracker.showWorkoutComplete]);
 
   const renderExerciseDays = () => {
     const today = new Date();
@@ -427,6 +427,7 @@ const MainWorkoutTracker = () => {
   const workoutSummary = () => {
     const session = workoutTracker.activeWorkoutTemplate;
     const sets = session.sets;
+    const exercises = session.exercises;
     let totalWeight;
     for (let i = 0; i < sets; i++) {
       totalWeight += parseInt(sets.weight, 10);
@@ -436,7 +437,7 @@ const MainWorkoutTracker = () => {
         style={{
           width: width,
           height: height,
-          zIndex: 1,
+          zIndex: 3,
           alignItems: 'center',
           justifyContent: 'center',
           position: 'absolute',
@@ -460,20 +461,186 @@ const MainWorkoutTracker = () => {
             borderWidth: 1,
             position: 'absolute',
             zIndex: 2,
-            padding: 10,
             flexDirection: 'column',
-            alignItems: 'center',
+            width: width * 0.8,
+            // height: height * 0.6,
+            padding: 20,
           }}>
-          <Text style={[styles.medSF, {fontSize: 14, paddingBottom: 5}]}>
-            Well done Fat Shit!
-          </Text>
-          <Text style={[styles.medSF, {fontSize: 14}]}>
-            Here is the workout summary
-          </Text>
-          <Text>{workoutTracker.activeWorkoutTemplate.name}</Text>
-          <Text style={[styles.medSF, {fontSize: 14, paddingBottom: 5}]}>
-            {totalWeight}
-          </Text>
+          <View
+            style={{
+              width: '100%',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              marginBottom: 20,
+            }}>
+            <Text
+              style={{
+                fontSize: 18,
+                paddingBottom: 5,
+                fontFamily: 'SFUIText-Semibold',
+                color: 'white',
+              }}>
+              Nice work dude!
+            </Text>
+            <Text style={[styles.medSF, {fontSize: 14, paddingBottom: 20}]}>
+              Another workout done.
+            </Text>
+            <View
+              style={{
+                width: '100%',
+                height: 1,
+                backgroundColor: 'white',
+              }}
+            />
+          </View>
+          <View
+            style={{
+              flexDirection: 'row',
+              justifyContent: 'space-between',
+              width: '100%',
+            }}>
+            <Text
+              style={{
+                color: 'white',
+                fontSize: 16,
+                fontFamily: 'SFUIText-Semibold',
+              }}>
+              {workoutTracker.activeWorkoutTemplate.name}
+            </Text>
+            <Text
+              style={{
+                color: 'white',
+                fontSize: 14,
+                fontFamily: 'SFUIText-Regular',
+              }}>
+              10m
+              {workoutTracker.duration}
+            </Text>
+          </View>
+          <View
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={{alignItems: 'center'}}>
+            {session.exercises.map((exercise, index) => {
+              const type = exercise.type;
+              const set = session.sets.filter(
+                set => exercise.id === set.exercise_id,
+              );
+              return (
+                <View key={exercise.id} style={{flexDirection: 'column'}}>
+                  <Text
+                    style={[
+                      styles.nativeBlueSFMed,
+                      {fontSize: 14, marginTop: 10},
+                    ]}>
+                    {set.length + ' x ' + exercise.name}
+                  </Text>
+                  {/* <View
+                    style={{
+                      flexDirection: 'row',
+                      marginBottom: 5,
+                      marginLeft: 10,
+                    }}>
+                    <Text
+                      style={[
+                        {
+                          width: 26,
+                          fontSize: 14,
+                          marginRight: 10,
+                          textAlign: 'center',
+                        },
+                        styles.medSF,
+                      ]}>
+                      Set
+                    </Text>
+                    <Text
+                      style={[
+                        {
+                          width: 45,
+                          fontSize: 14,
+                          marginRight: 10,
+                          textAlign: 'center',
+                        },
+                        styles.medSF,
+                      ]}>
+                      {(type === 0 && 'kg') ||
+                        (type === 1 && 'km') ||
+                        (type === 2 && 'kg') ||
+                        (type === 3 && 'S')}
+                    </Text>
+                    <Text
+                      style={[
+                        {
+                          width: 40,
+                          fontSize: 14,
+                          marginRight: 10,
+                          textAlign: 'center',
+                        },
+                        styles.medSF,
+                      ]}>
+                      {(type === 0 && 'Reps') ||
+                        (type === 1 && 'Min') ||
+                        (type === 2 && 'Reps')}
+                    </Text>
+                  </View> */}
+                  {/* {set.map((set, sIndex) => {
+                    return (
+                      <View key={set.id}>
+                        <View
+                          style={{
+                            flexDirection: 'row',
+                            marginBottom: 5,
+                            marginLeft: 10,
+                          }}>
+                          <Text
+                            style={[
+                              {
+                                width: 26,
+                                fontSize: 14,
+                                marginRight: 10,
+                                textAlign: 'center',
+                              },
+                              styles.medSF,
+                            ]}>
+                            {sIndex + 1}
+                          </Text>
+                          <Text
+                            style={[
+                              {
+                                width: 45,
+                                fontSize: 14,
+                                marginRight: 10,
+                                textAlign: 'center',
+                              },
+                              styles.medSF,
+                            ]}>
+                            {(type === 0 && set.weight) ||
+                              (type === 1 && set.distance) ||
+                              (type === 2 && set.weight) ||
+                              (type === 3 && set.duration)}
+                          </Text>
+                          <Text
+                            style={[
+                              {
+                                width: 40,
+                                fontSize: 14,
+                                marginRight: 10,
+                                textAlign: 'center',
+                              },
+                              styles.medSF,
+                            ]}>
+                            {(type === 0 && set.reps) ||
+                              (type === 1 && set.duration) ||
+                              (type === 2 && set.reps)}
+                          </Text>
+                        </View>
+                      </View>
+                    );
+                  })} */}
+                </View>
+              );
+            })}
+          </View>
         </View>
       </View>
     );
@@ -489,7 +656,7 @@ const MainWorkoutTracker = () => {
           position: 'absolute',
           alignItems: 'center',
           justifyContent: 'center',
-          zIndex: 1,
+          zIndex: 2,
         }}>
         <Pressable
           onPress={() => {
@@ -672,7 +839,7 @@ const MainWorkoutTracker = () => {
             position: 'absolute',
             alignItems: 'center',
             justifyContent: 'center',
-            zIndex: 1,
+            zIndex: 2,
           },
           animatedOpacity,
         ]}>
@@ -808,7 +975,7 @@ const MainWorkoutTracker = () => {
           <HomeFilled />
         </TouchableOpacity>
       </View> */}
-      {/* {workoutTracker.showWorkoutComplete && workoutSummary()} */}
+      {workoutTracker.showWorkoutComplete && workoutSummary()}
       {showSession && sessionReviewModal()}
       {showWorkoutModal === true && workoutModal()}
       <View style={{height: height * 0.05}} />

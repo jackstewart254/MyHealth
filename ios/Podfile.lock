@@ -1001,6 +1001,8 @@ PODS:
     - React-debug
   - react-native-netinfo (11.3.2):
     - React-Core
+  - react-native-notifications (5.1.0):
+    - React-Core
   - React-nativeconfig (0.74.5)
   - React-NativeModulesApple (0.74.5):
     - glog
@@ -1366,6 +1368,7 @@ DEPENDENCIES:
   - React-logger (from `../node_modules/react-native/ReactCommon/logger`)
   - React-Mapbuffer (from `../node_modules/react-native/ReactCommon`)
   - "react-native-netinfo (from `../node_modules/@react-native-community/netinfo`)"
+  - react-native-notifications (from `../node_modules/react-native-notifications`)
   - React-nativeconfig (from `../node_modules/react-native/ReactCommon`)
   - React-NativeModulesApple (from `../node_modules/react-native/ReactCommon/react/nativemodule/core/platform/ios`)
   - React-perflogger (from `../node_modules/react-native/ReactCommon/reactperflogger`)
@@ -1477,6 +1480,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/ReactCommon"
   react-native-netinfo:
     :path: "../node_modules/@react-native-community/netinfo"
+  react-native-notifications:
+    :path: "../node_modules/react-native-notifications"
   React-nativeconfig:
     :path: "../node_modules/react-native/ReactCommon"
   React-NativeModulesApple:
@@ -1581,6 +1586,7 @@ SPEC CHECKSUMS:
   React-logger: 257858bd55f3a4e1bc0cf07ddc8fb9faba6f8c7c
   React-Mapbuffer: dce508662b995ffefd29e278a16b78217039d43d
   react-native-netinfo: 076df4f9b07f6670acf4ce9a75aac8d34c2e2ccc
+  react-native-notifications: 4601a5a8db4ced6ae7cfc43b44d35fe437ac50c4
   React-nativeconfig: f326487bc61eba3f0e328da6efb2711533dcac46
   React-NativeModulesApple: d89733f5baed8b9249ca5a8e497d63c550097312
   React-perflogger: ed4e0c65781521e0424f2e5e40b40cc7879d737e

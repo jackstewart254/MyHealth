@@ -65,6 +65,7 @@ const Navigation = () => {
           width: width,
           alignItems: 'center',
           zIndex: 1,
+          opacity: 1,
         }}>
         <View
           style={{
@@ -135,7 +136,9 @@ const Navigation = () => {
           <Profile />
         </Animated.View>
       )}
-      {showLogin === true && tabNavigator()}
+      {showLogin === true &&
+        workoutTracker.animateSlide === false &&
+        tabNavigator()}
     </View>
   );
 };

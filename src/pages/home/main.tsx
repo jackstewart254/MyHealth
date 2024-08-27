@@ -2,7 +2,7 @@ import {Dimensions, Text, View, TouchableOpacity} from 'react-native';
 import React from 'react';
 import {useWorkoutTracker} from '../../../contexts/workoutTracker';
 import LinearGradient from 'react-native-linear-gradient';
-import LineChartExample from '../../../assets/graphs/lineGraph';
+import LineChartExample from '../../components/graphs/lineGraph';
 
 const width = Dimensions.get('screen').width;
 const height = Dimensions.get('screen').height;

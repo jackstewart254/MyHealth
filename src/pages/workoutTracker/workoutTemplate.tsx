@@ -42,8 +42,8 @@ import {differenceInMinutes} from 'date-fns';
 import AddExerciseModal from './addExerciseModal';
 import Duration from './durationComponent';
 import {insertWorkout} from '../../../hooks/insert';
-import ConnectionStatus from '../../../assets/connectionStatus';
-import useConnectionStatus from '../../../assets/connectionStatus';
+import ConnectionStatus from '../../components/connectionStatus';
+import useConnectionStatus from '../../components/connectionStatus';
 
 const CreateWorkout = () => {
   const [exerciseArr, setExerciseArr] = useState([]);
@@ -162,13 +162,13 @@ const CreateWorkout = () => {
       session_num: workoutTracker.activeWorkoutTemplate.session_num,
       id: val,
       exercise_id: id,
-      weight: present !== undefined ? present.weight : '',
-      reps: present !== undefined ? present.reps : '',
+      weight: present !== undefined ? present.weight : '0',
+      reps: present !== undefined ? present.reps : '0',
       order: exerciseSet.length,
       created_at: new Date(),
       isFinished: false,
-      distance: present !== undefined ? present.distance : '',
-      duration: present !== undefined ? present.duration : '',
+      distance: present !== undefined ? present.distance : '0',
+      duration: present !== undefined ? present.duration : '0',
       calories: '',
     };
     let newArr = [...set, setObject];
@@ -220,8 +220,6 @@ const CreateWorkout = () => {
       newSet.push(updatedObject);
     }
 
-    console.log(newSet);
-
     storeSessionInstance({
       name: template,
       exercises: exerciseArr,
@@ -234,20 +232,18 @@ const CreateWorkout = () => {
       template_id: workoutTracker.activeWorkoutTemplate.id,
       id: id,
     });
-    if (isConnected === true) {
-      insertWorkout({
-        name: template,
-        exercises: exerciseArr,
-        sets: newSet,
-        date: workoutTracker.activeWorkoutStartTime,
-        duration: differenceInMinutes(
-          new Date(),
-          workoutTracker.activeWorkoutStartTime,
-        ),
-        template_id: workoutTracker.activeWorkoutTemplate.id,
-        id: id,
-      });
-    }
+    insertWorkout({
+      name: template,
+      exercises: exerciseArr,
+      sets: newSet,
+      date: workoutTracker.activeWorkoutStartTime,
+      duration: differenceInMinutes(
+        new Date(),
+        workoutTracker.activeWorkoutStartTime,
+      ),
+      template_id: workoutTracker.activeWorkoutTemplate.id,
+      id: id,
+    });
     storeSets(newSet);
     setActiveWorkoutState({
       ongoing: false,
