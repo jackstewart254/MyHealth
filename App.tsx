@@ -23,39 +23,6 @@ const App = () => {
   const [isConnected, setIsConnected] = useState(null);
   const [token, setToken] = useState();
 
-  // useEffect(() => {
-  //   // Handle messages received while the app is in the foreground
-  //   const unsubscribe = messaging().onMessage(async remoteMessage => {
-
-  //     // Display a local notification
-  //     PushNotification.localNotification({
-  //       channelId: 'default-channel-id', // Make sure this matches the channel ID set in createChannel (Android)
-  //       title: remoteMessage.notification?.title || 'New Notification',
-  //       message:
-  //         remoteMessage.notification?.body ||
-  //         'You have received a new message.',
-  //       data: remoteMessage.data, // Pass along any data if needed
-  //     });
-
-  //     // Optionally, display an alert for debugging or foreground notification
-  //     Alert.alert(
-  //       remoteMessage.notification?.title || 'New Notification',
-  //       remoteMessage.notification?.body || 'You have received a new message.',
-  //     );
-  //   });
-
-  //   return unsubscribe;
-  // }, []);
-
-  // async function requestUserPermission() {
-  //   const authStatus = await messaging().requestPermission();
-  //   const enabled =
-  //     authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
-  //     authStatus === messaging.AuthorizationStatus.PROVISIONAL;
-  //   if (enabled) {
-  //   }
-  // }
-
   useEffect(() => {
     const initializeFCM = async () => {
       const fcm = await AsyncStorage.getItem('fcm');
@@ -122,25 +89,6 @@ const App = () => {
     };
   }, [isConnected]);
 
-  // const getFCMToken = async () => {
-  //   if (Platform.OS === 'ios') {
-  //     await messaging().registerDeviceForRemoteMessages();
-  //     const apnsToken = await messaging().getAPNSToken();
-  //     if (apnsToken) {
-  //       const fcm = await AsyncStorage.getItem('fcm');
-  //       // if (fcm === null) {
-  //       const fcmToken = await messaging().getToken();
-  //       if (fcmToken) {
-  //         storeFCM(fcmToken);
-  //         console.log(fcmToken);
-  //       } else {
-  //         console.log('Failed to get FCM token');
-  //       }
-  //       // }
-  //     }
-  //   }
-  // };
-
   useEffect(() => {}, [token]);
 
   useEffect(() => {
@@ -155,6 +103,11 @@ const App = () => {
       await checkProfiles();
     };
 
+    const store = async () => {
+      await setStoreExercise();
+    };
+
+    store();
     uploadSessions();
     check();
   }, []);

@@ -191,6 +191,18 @@ const Login = () => {
         alignItems: 'center',
         justifyContent: 'center',
       }}>
+      <Text
+        style={{
+          fontSize: 14,
+          fontFamily: 'SFUIText-Regular',
+          color: 'white',
+          width: width * 0.6,
+          paddingBottom: 10,
+          textAlign: 'center',
+        }}>
+        Hey, after pressing the signup link come back and login. The sign up
+        link works, but doesn't display anything
+      </Text>
       {signup()}
     </View>
   );
