@@ -104,7 +104,6 @@ const App = () => {
   useEffect(() => {
     const uploadSessions = async () => {
       const res = JSON.parse(await AsyncStorage.getItem('sessions'));
-      const;
       for (let i = 0; i < res?.length; i++) {
         await insertWorkout(res[i]);
       }
