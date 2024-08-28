@@ -1,5 +1,5 @@
 import React from 'react';
-import Svg, {Path} from 'react-native-svg';
+import Svg, {Path, Rect} from 'react-native-svg';
 
 const Cross = ({
   width,
@@ -83,4 +83,16 @@ const HomeFilled = () => (
   </Svg>
 );
 
-export {Cross, Tick, ChevronDown, HomeEmpty, HomeFilled};
+const Pause = () => (
+  <Svg
+    width="10"
+    height="12"
+    viewBox="0 0 10 12"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg">
+    <Rect width="3" height="12" rx="1.5" fill="white" />
+    <Rect x="7" width="3" height="12" rx="1.5" fill="white" />
+  </Svg>
+);
+
+export {Cross, Tick, ChevronDown, HomeEmpty, HomeFilled, Pause};

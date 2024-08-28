@@ -49,7 +49,7 @@ const insertWorkout = async session => {
           duration: parseInt(exerciseSets.duration, 10),
           distance: parseInt(exerciseSets.distance, 10),
           created_at: exerciseSets[i].created_at,
-          user: user.user.id,
+          user_id: user.user.id,
         },
       ])
       .select();

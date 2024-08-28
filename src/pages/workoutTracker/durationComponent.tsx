@@ -18,7 +18,15 @@ import {
   differenceInSeconds,
 } from 'date-fns';
 
-const Duration = ({startTime, color}: {startTime: string; color: string}) => {
+const Duration = ({
+  startTime,
+  color,
+  size,
+}: {
+  startTime: string;
+  color: string;
+  size: number;
+}) => {
   const [timeDifference, setTimeDifference] = useState({
     minutes: 0,
     seconds: 0,
@@ -33,7 +41,7 @@ const Duration = ({startTime, color}: {startTime: string; color: string}) => {
       setTimeDifference({minutes, seconds});
     };
 
-    updateDifference(); // Update immediately on mount
+    updateDifference();
 
     const intervalId = setInterval(updateDifference, 1000);
 
@@ -43,7 +51,13 @@ const Duration = ({startTime, color}: {startTime: string; color: string}) => {
   return (
     <View>
       <Text
-        style={[{fontSize: 16, fontFamily: 'SFUIText-Medium', color: color}]}>
+        style={[
+          {
+            fontSize: size !== undefined ? 14 : 16,
+            fontFamily: 'SFUIText-Medium',
+            color: color,
+          },
+        ]}>
         {`${timeDifference.minutes}:${timeDifference.seconds
           .toString()
           .padStart(2, '0')}`}

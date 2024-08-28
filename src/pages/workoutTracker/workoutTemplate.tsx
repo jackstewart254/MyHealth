@@ -14,6 +14,7 @@ import {
 import {
   ChevronDown,
   Cross,
+  Pause,
   Tick,
 } from '../../../assets/svgs/workoutTrackerSvgs';
 const height = Dimensions.get('screen').height;
@@ -42,7 +43,7 @@ import {
   storeSets,
   storeTemplate,
 } from '../../../localStorage/insert';
-import {differenceInMinutes} from 'date-fns';
+import {differenceInMinutes, differenceInSeconds} from 'date-fns';
 import AddExerciseModal from './addExerciseModal';
 import Duration from './durationComponent';
 import {insertWorkout} from '../../../hooks/insert';
@@ -62,6 +63,7 @@ const CreateWorkout = () => {
   const [template, setTemplate] = useState('');
   const [close, setClose] = useState(false);
   const {isConnected, connectionType} = useConnectionStatus();
+  const [restTime, setRestTime] = useState(String);
 
   useEffect(() => {}, [isConnected]);
 
@@ -172,13 +174,17 @@ const CreateWorkout = () => {
         console.log(format(sessionTime, 'mm:hh:dd'));
       }
     }
-    const sets = closestSession.sets.filter(x => x.order === order);
-    if (sets.length > 0) {
-      const one = sets.find(o => o.order === order);
-      if (order !== undefined) {
-        console.log(one);
-        return one;
+    if (closestSession !== null) {
+      const sets = closestSession.sets.filter(x => x.order === order);
+      if (sets.length > 0) {
+        const one = sets.find(o => o.order === order);
+        if (order !== undefined) {
+          console.log(one);
+          return one;
+        }
       }
+    } else {
+      return;
     }
   };
 
@@ -213,6 +219,7 @@ const CreateWorkout = () => {
         : null;
 
     const val = generateRandomID();
+    const date = String(new Date());
     let setObject = {
       session_num: workoutTracker.activeWorkoutTemplate.session_num,
       id: val,
@@ -225,6 +232,8 @@ const CreateWorkout = () => {
       distance: present !== undefined ? present.distance : '0',
       duration: present !== undefined ? present.duration : '0',
       previous: prev,
+      rest: {start: date, end: date},
+      pause: false,
     };
     let newArr = [...set, setObject];
     newArr.sort((a, b) => a.order - b.order);
@@ -244,23 +253,40 @@ const CreateWorkout = () => {
     );
   };
 
-  const handleIsFinished = (id: number) => {
+  const handleIsFinished = (id: number, state: number) => {
+    setRestTime(String(new Date()));
     if (edit === true) {
       removeElement(id);
     } else {
-      // Use map to create a new array with the updated element
-      const newArray = set.map(item => {
-        if (item.id === id) {
-          return {
-            ...item,
-            isFinished: !item.isFinished,
-          };
-        }
-        return item;
-      });
+      if (state === 0) {
+        const newArray = set.map(item => {
+          if (item.id === id) {
+            return {
+              ...item,
+              pause: true,
+              rest: {start: restTime, end: String(new Date())},
+            };
+          }
+          return item;
+        });
 
-      newArray.sort((a, b) => a.order - b.order);
-      setSet(newArray);
+        newArray.sort((a, b) => a.order - b.order);
+        setSet(newArray);
+      }
+      if (state === 1) {
+        const newArray = set.map(item => {
+          if (item.id === id) {
+            return {
+              ...item,
+              isFinished: !item.isFinished,
+            };
+          }
+          return item;
+        });
+
+        newArray.sort((a, b) => a.order - b.order);
+        setSet(newArray);
+      }
     }
   };
 
@@ -495,14 +521,13 @@ const CreateWorkout = () => {
             <Text style={[styles.redSemiboldSF]}>Delete</Text>
           </TouchableOpacity>
         </View>
-
         <View
           key={index}
           style={{
             width: '100%',
             flexDirection: 'row',
-            justifyContent: 'space-between',
             paddingBottom: 10,
+            justifyContent: 'space-between',
           }}>
           <View
             style={{
@@ -518,10 +543,10 @@ const CreateWorkout = () => {
           <View
             style={{
               width:
-                (exerciseType === 3 && width * 0.33) ||
-                (exerciseType === 0 && width * 0.45) ||
-                (exerciseType === 2 && width * 0.45) ||
-                (exerciseType === 1 && width * 0.33),
+                (exerciseType === 3 && width * 0.23) ||
+                (exerciseType === 0 && width * 0.23) ||
+                (exerciseType === 2 && width * 0.23) ||
+                (exerciseType === 1 && width * 0.23),
               height: 30,
               borderRadius: 5,
               alignItems: 'center',
@@ -532,51 +557,64 @@ const CreateWorkout = () => {
           <View
             style={{
               width:
-                (exerciseType === 3 && width * 0.34) ||
-                (exerciseType === 0 && width * 0.115) ||
-                (exerciseType === 2 && width * 0.115) ||
-                (exerciseType === 1 && width * 0.18),
+                (exerciseType === 3 && width * 0.16) ||
+                (exerciseType === 0 && width * 0.16) ||
+                (exerciseType === 2 && width * 0.16) ||
+                (exerciseType === 1 && width * 0.16),
               height: 30,
               borderRadius: 5,
               alignItems: 'center',
               justifyContent: 'center',
             }}>
-            <Text style={[styles.semiboldSF, {fontSize: 16}]}>
-              {(exerciseType === 3 && 'Duration') ||
-                (exerciseType === 0 && 'kg') ||
-                (exerciseType === 2 && 'kg') ||
-                (exerciseType === 1 && 'km')}
-            </Text>
+            <Text style={[styles.semiboldSF, {fontSize: 16}]}>Rest</Text>
           </View>
           <View
             style={{
               overflow: 'hidden',
               width:
-                (exerciseType === 3 && width * 0) ||
-                (exerciseType === 0 && width * 0.09) ||
-                (exerciseType === 2 && width * 0.09) ||
-                (exerciseType === 1 && width * 0.14),
+                (exerciseType === 3 && width * 0.25) ||
+                (exerciseType === 0 && width * 0.11) ||
+                (exerciseType === 2 && width * 0.11) ||
+                (exerciseType === 1 && width * 0.11),
               height: 30,
               borderRadius: 5,
               alignItems: 'center',
               justifyContent: 'center',
             }}>
             <Text style={[styles.semiboldSF, {fontSize: 16}]}>
-              {(exerciseType === 0 && 'Reps') ||
-                (exerciseType === 1 && 'Min') ||
-                (exerciseType === 2 && 'Reps')}
+              {(exerciseType === 0 && 'kg') ||
+                (exerciseType === 1 && 'km') ||
+                (exerciseType === 2 && 'kg') ||
+                (exerciseType === 3 && 'Time')}
             </Text>
           </View>
+          {item.type !== 3 && (
+            <View
+              style={{
+                overflow: 'hidden',
+                width:
+                  (exerciseType === 3 && 0) ||
+                  (exerciseType === 0 && width * 0.11) ||
+                  (exerciseType === 2 && width * 0.11) ||
+                  (exerciseType === 1 && width * 0.11),
+                height: 30,
+                borderRadius: 5,
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}>
+              <Text style={[styles.semiboldSF, {fontSize: 16}]}>
+                {(exerciseType === 0 && 'Reps') ||
+                  (exerciseType === 1 && 'Time') ||
+                  (exerciseType === 2 && 'Reps')}
+              </Text>
+            </View>
+          )}
           <View
             style={{
               width: width * 0.07,
               height: 30,
-              borderRadius: 5,
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}>
-            <Text style={[styles.medSF, {fontSize: 14}]}></Text>
-          </View>
+            }}
+          />
         </View>
         {setsForExercise.map((set, index) => {
           return (
@@ -585,15 +623,19 @@ const CreateWorkout = () => {
               style={{
                 width: '100%',
                 flexDirection: 'row',
-                justifyContent: 'space-between',
                 paddingBottom: 10,
                 alignItems: 'center',
+                justifyContent: 'space-between',
               }}>
               <View
                 style={{
                   width: width * 0.06,
                   height: 30,
-                  backgroundColor: set.isFinished ? '#02BC86' : '#A7A8AB',
+                  backgroundColor: set.isFinished
+                    ? '#02BC86'
+                    : set.pause === true
+                    ? '#FFA800'
+                    : '#A7A8AB',
                   borderRadius: 5,
                   alignItems: 'center',
                   justifyContent: 'center',
@@ -603,15 +645,19 @@ const CreateWorkout = () => {
               <View
                 style={{
                   width:
-                    (exerciseType === 3 && width * 0.34) ||
-                    (exerciseType === 0 && width * 0.45) ||
-                    (exerciseType === 1 && width * 0.33) ||
-                    (exerciseType === 2 && width * 0.45),
+                    (exerciseType === 3 && width * 0.23) ||
+                    (exerciseType === 0 && width * 0.23) ||
+                    (exerciseType === 2 && width * 0.23) ||
+                    (exerciseType === 1 && width * 0.23),
                   height: 30,
-                  backgroundColor: set.isFinished ? '#02BC86' : '#A7A8AB',
                   borderRadius: 5,
                   alignItems: 'center',
                   justifyContent: 'center',
+                  backgroundColor: set.isFinished
+                    ? '#02BC86'
+                    : set.pause === true
+                    ? '#FFA800'
+                    : '#A7A8AB',
                 }}>
                 <Text
                   style={{
@@ -625,15 +671,73 @@ const CreateWorkout = () => {
               <View
                 style={{
                   width:
-                    (exerciseType === 3 && width * 0.34) ||
-                    (exerciseType === 0 && width * 0.115) ||
-                    (exerciseType === 1 && width * 0.18) ||
-                    (exerciseType === 2 && width * 0.115),
+                    (exerciseType === 3 && width * 0.16) ||
+                    (exerciseType === 0 && width * 0.16) ||
+                    (exerciseType === 2 && width * 0.16) ||
+                    (exerciseType === 1 && width * 0.16),
                   height: 30,
-                  backgroundColor: set.isFinished ? '#02BC86' : '#A7A8AB',
                   borderRadius: 5,
                   alignItems: 'center',
                   justifyContent: 'center',
+                  backgroundColor: set.isFinished
+                    ? '#02BC86'
+                    : set.pause === true
+                    ? '#FFA800'
+                    : '#A7A8AB',
+                }}>
+                {index === 0 ? (
+                  <Text
+                    style={{
+                      fontSize: 14,
+                      color: 'white',
+                      fontFamily: 'SFUIText-Medium',
+                    }}>
+                    0:00
+                  </Text>
+                ) : setsForExercise[index - 1].isFinished === true &&
+                  set.pause === false &&
+                  set.isFinished === false ? (
+                  <Duration startTime={restTime} color="white" size={14} />
+                ) : (
+                  <Text
+                    style={{
+                      fontSize: 14,
+                      color: 'white',
+                      fontFamily: 'SFUIText-Medium',
+                    }}>
+                    {differenceInMinutes(
+                      new Date(set.rest.end),
+                      new Date(set.rest.start),
+                    )}
+                    :
+                    {(
+                      differenceInSeconds(
+                        new Date(set.rest.end),
+                        new Date(set.rest.start),
+                      ) % 60
+                    )
+                      .toString()
+                      .padStart(2, '0')}
+                  </Text>
+                )}
+              </View>
+              <View
+                style={{
+                  overflow: 'hidden',
+                  width:
+                    (exerciseType === 3 && width * 0.25) ||
+                    (exerciseType === 0 && width * 0.11) ||
+                    (exerciseType === 2 && width * 0.11) ||
+                    (exerciseType === 1 && width * 0.11),
+                  height: 30,
+                  borderRadius: 5,
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  backgroundColor: set.isFinished
+                    ? '#02BC86'
+                    : set.pause === true
+                    ? '#FFA800'
+                    : '#A7A8AB',
                 }}>
                 <TextInput
                   placeholder={'0'}
@@ -665,16 +769,20 @@ const CreateWorkout = () => {
               {exerciseType !== 3 && (
                 <View
                   style={{
+                    overflow: 'hidden',
                     width:
-                      (exerciseType === 3 && 0) ||
-                      (exerciseType === 0 && width * 0.09) ||
-                      (exerciseType === 1 && width * 0.14) ||
-                      (exerciseType === 2 && width * 0.09),
+                      (exerciseType === 0 && width * 0.11) ||
+                      (exerciseType === 2 && width * 0.11) ||
+                      (exerciseType === 1 && width * 0.11),
                     height: 30,
-                    backgroundColor: set.isFinished ? '#02BC86' : '#A7A8AB',
                     borderRadius: 5,
                     alignItems: 'center',
                     justifyContent: 'center',
+                    backgroundColor: set.isFinished
+                      ? '#02BC86'
+                      : set.pause === true
+                      ? '#FFA800'
+                      : '#A7A8AB',
                   }}>
                   <TextInput
                     placeholder={'0'}
@@ -704,7 +812,11 @@ const CreateWorkout = () => {
               {workoutTracker.slideView === 'active' ? (
                 <TouchableOpacity
                   onPress={() => {
-                    handleIsFinished(set.id);
+                    index > 0 &&
+                    setsForExercise[index - 1].isFinished === true &&
+                    set.pause === false
+                      ? handleIsFinished(set.id, 0)
+                      : handleIsFinished(set.id, 1);
                   }}
                   style={{
                     width: width * 0.07,
@@ -713,6 +825,8 @@ const CreateWorkout = () => {
                       ? '#FF2A00'
                       : set.isFinished
                       ? '#02BC86'
+                      : set.pause === true
+                      ? '#FFA800'
                       : '#A7A8AB',
                     borderRadius: 5,
                     alignItems: 'center',
@@ -720,6 +834,11 @@ const CreateWorkout = () => {
                   }}>
                   {edit ? (
                     <Cross width={12} height={12} color="#24262E" />
+                  ) : index > 0 &&
+                    setsForExercise[index - 1].isFinished === true &&
+                    set.pause === false &&
+                    set.isFinished === false ? (
+                    <Pause />
                   ) : (
                     <Tick />
                   )}
