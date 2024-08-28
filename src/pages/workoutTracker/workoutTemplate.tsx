@@ -74,6 +74,7 @@ const CreateWorkout = () => {
   }, [workoutTracker.newExercise]);
 
   useEffect(() => {
+    console.log(set);
     setActiveWorkoutState({
       ongoing: workoutTracker.activeWorkout,
       startTime: workoutTracker.activeWorkoutStartTime,
@@ -298,6 +299,7 @@ const CreateWorkout = () => {
       let currentObject = set[i];
       let updatedObject = {...currentObject, id: generateRandomID()};
       newSet.push(updatedObject);
+      console.log(updatedObject.rest);
     }
 
     storeSessionInstance({
@@ -665,7 +667,7 @@ const CreateWorkout = () => {
                     color: 'white',
                     fontFamily: 'SFUIText-Semibold',
                   }}>
-                  {set.previous === null ? 'n/a' : set.previous}
+                  {set.previous === null ? 'None' : set.previous}
                 </Text>
               </View>
               <View

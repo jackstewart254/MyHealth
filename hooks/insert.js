@@ -2,6 +2,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import {fetchUser} from '../localStorage/insert';
 import supabase from '../supabase';
 import {fetchExercises} from './fetch';
+import {differenceInSeconds} from 'date-fns';
 
 const insertExercise = async exercise => {
   const {data, error} = await supabase
@@ -50,10 +51,16 @@ const insertWorkout = async session => {
           distance: parseInt(exerciseSets.distance, 10),
           created_at: exerciseSets[i].created_at,
           user_id: user.user.id,
+          rest:
+            exerciseSets[i].rest !== undefined
+              ? differenceInSeconds(
+                  new Date(exerciseSets[i].rest.end),
+                  new Date(exerciseSets[i].rest.start),
+                )
+              : 0,
         },
       ])
       .select();
-    console.log(data, error);
   }
   for (let i = 0; i < newExercises.length; i++) {
     insertExercise(newExercises[i]);
