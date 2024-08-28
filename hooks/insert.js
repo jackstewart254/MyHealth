@@ -42,16 +42,18 @@ const insertWorkout = async session => {
         {
           id: exerciseSets[i].id,
           exercise: exerciseSets[i].exercise_id,
-          reps: exerciseSets[i].reps,
-          weight: exerciseSets[i].weight,
-          session_id: exerciseSets[i].session_num,
-          order: exerciseSets[i].order,
-          duration: exerciseSets.duration,
-          distance: exerciseSets.distance,
-          created_at: exerciseSets.created_at,
+          reps: parseInt(exerciseSets[i].reps, 10),
+          weight: parseInt(exerciseSets[i].weight, 10),
+          session_id: parseInt(exerciseSets[i].session_num, 10),
+          order: parseInt(exerciseSets[i].order, 10),
+          duration: parseInt(exerciseSets.duration, 10),
+          distance: parseInt(exerciseSets.distance, 10),
+          created_at: exerciseSets[i].created_at,
+          user: user.user.id,
         },
       ])
       .select();
+    console.log(data, error);
   }
   for (let i = 0; i < newExercises.length; i++) {
     insertExercise(newExercises[i]);
@@ -73,4 +75,16 @@ const insertWorkout = async session => {
     .select();
 };
 
-export {insertWorkout};
+const insertError = async (location, uError) => {
+  const user = JSON.parse(await AsyncStorage.getItem('auth'));
+  const {data, error} = supabase.from('errors').insert([
+    {
+      message: uError,
+      location: location,
+      user: user !== null ? user.user.id : null,
+    },
+  ]);
+  console.log(data, error);
+};
+
+export {insertWorkout, insertError};

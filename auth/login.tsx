@@ -12,6 +12,7 @@ import {clearKey, fetchUser, storeUser} from '../localStorage/insert';
 import {useWorkoutTracker} from '../contexts/workoutTracker';
 import supabase from '../supabase';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import {insertError} from '../hooks/insert';
 
 const width = Dimensions.get('screen').width;
 const height = Dimensions.get('screen').height;
@@ -31,8 +32,10 @@ const Login = () => {
     } else {
       const res = await handleSignup({email: email, password: password});
       if (res === null) {
+        Alert.alert('Check your email for confirmation link');
         setSignupPressed(true);
       } else {
+        insertError('Signup', res);
         Alert.alert('Error, try again later');
       }
     }
@@ -46,8 +49,9 @@ const Login = () => {
         Alert.alert('Email or Password is empty');
       } else {
         const res = await handleLogin({email: email, password: password});
-        if (res === false) {
-          Alert.alert('Error');
+        if (res === null) {
+          insertError('Signin', res);
+          Alert.alert('Check your emails for confirmation link');
         } else {
           setWorkoutTracker({...workoutTracker, hideLogin: true});
         }

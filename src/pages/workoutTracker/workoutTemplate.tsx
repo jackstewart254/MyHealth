@@ -150,7 +150,6 @@ const CreateWorkout = () => {
     const sessions = JSON.parse(await AsyncStorage.getItem('sessions'));
 
     if (!sessions || sessions.length === 0) {
-      console.log('No sessions found');
       return;
     }
 
@@ -170,15 +169,15 @@ const CreateWorkout = () => {
       ) {
         smallestDifference = difference;
         closestSession = sessions[i];
+        console.log(format(sessionTime, 'mm:hh:dd'));
       }
     }
     const sets = closestSession.sets.filter(x => x.order === order);
     if (sets.length > 0) {
       const one = sets.find(o => o.order === order);
       if (order !== undefined) {
+        console.log(one);
         return one;
-      } else {
-        return null;
       }
     }
   };
@@ -201,6 +200,7 @@ const CreateWorkout = () => {
       exercise => exerciseSet.length - 1 === exercise.order,
     );
     const res = await getPrevious(id, exerciseSet.length);
+    console.log(res);
     const prev =
       res !== undefined
         ? type === 0
@@ -224,7 +224,6 @@ const CreateWorkout = () => {
       isFinished: false,
       distance: present !== undefined ? present.distance : '0',
       duration: present !== undefined ? present.duration : '0',
-      calories: '',
       previous: prev,
     };
     let newArr = [...set, setObject];
@@ -271,7 +270,6 @@ const CreateWorkout = () => {
 
     for (let i = 0; i < set.length; i++) {
       let currentObject = set[i];
-      console.log(currentObject.id);
       let updatedObject = {...currentObject, id: generateRandomID()};
       newSet.push(updatedObject);
     }

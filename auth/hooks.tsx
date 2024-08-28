@@ -43,9 +43,9 @@ const handleLogin = async ({
     if (fcm?.length > 0) {
       await insertProfiles(data.user?.id, fcm);
     }
-    return data;
+    return true;
   } else {
-    return false;
+    return error;
   }
 };
 
