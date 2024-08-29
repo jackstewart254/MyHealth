@@ -254,7 +254,12 @@ const CreateWorkout = () => {
     );
   };
 
-  const handleIsFinished = (id: number, state: number) => {
+  const handleIsFinished = (
+    id: number,
+    state: number,
+    xID: number,
+    order: number,
+  ) => {
     setRestTime(String(new Date()));
     if (edit === true) {
       removeElement(id);
@@ -699,7 +704,11 @@ const CreateWorkout = () => {
                 ) : setsForExercise[index - 1].isFinished === true &&
                   set.pause === false &&
                   set.isFinished === false ? (
-                  <Duration startTime={restTime} color="white" size={14} />
+                  <Duration
+                    startTime={set.rest.start}
+                    color="white"
+                    size={14}
+                  />
                 ) : (
                   <Text
                     style={{

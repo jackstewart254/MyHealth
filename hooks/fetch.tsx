@@ -37,4 +37,17 @@ const checkProfiles = async () => {
   }
 };
 
-export {fetchExercises, handleCheckSession, checkProfiles};
+const getDBSessions = async uID => {
+  let id = [];
+  const {data, error} = await supabase.from('sessions').select('*');
+  // .eq('user_id', uID);
+
+  if (data?.length > 0) {
+    for (let i = 0; i < data?.length; i++) {
+      id.push(data[i].id);
+    }
+  }
+  return id;
+};
+
+export {fetchExercises, handleCheckSession, checkProfiles, getDBSessions};

@@ -10,7 +10,12 @@ import {fetchActiveWorkout} from './localStorage/fetch';
 import Navigation from './src/navigation/navigation';
 import {GestureHandlerRootView} from 'react-native-gesture-handler';
 import Login from './auth/login';
-import {checkProfiles, fetchSessions, handleCheckSession} from './hooks/fetch';
+import {
+  checkProfiles,
+  fetchSessions,
+  getDBSessions,
+  handleCheckSession,
+} from './hooks/fetch';
 import messaging from '@react-native-firebase/messaging';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {localNotification} from './src/components/localNotification';
@@ -95,7 +100,7 @@ const App = () => {
   useEffect(() => {
     const fetchUser = async () => {
       const res = JSON.parse(await AsyncStorage.getItem('auth'));
-      setLogged(res === null ? false : true);
+      setLogged(res === null ? false : res);
     };
 
     fetchUser();
@@ -104,8 +109,18 @@ const App = () => {
   useEffect(() => {
     const uploadSessions = async () => {
       const res = JSON.parse(await AsyncStorage.getItem('sessions'));
-      for (let i = 0; i < res?.length; i++) {
-        await insertWorkout(res[i]);
+      const id = await getDBSessions(logged.user.id);
+      let notIn = [];
+      for (let x = 0; x < res.length; x++) {
+        const present = id.find(i => i === res[x].id);
+        if (present === null) {
+          notIn.push(res[x]);
+        }
+      }
+      if (notIn.length > 0) {
+        for (let i = 0; i < notIn.length; i++) {
+          await insertWorkout(notIn[i]);
+        }
       }
     };
 
@@ -117,7 +132,7 @@ const App = () => {
       await setStoreExercise();
     };
 
-    if (logged === true) {
+    if (logged !== false) {
       store();
       uploadSessions();
       check();
