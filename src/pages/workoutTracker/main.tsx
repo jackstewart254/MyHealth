@@ -118,11 +118,11 @@ const MainWorkoutTracker = () => {
       transX.value = withTiming(0, {duration: 300});
     }
     if (slideView === 1) {
-      translateX.value = withTiming((width - 40) / 3, {duration: 300});
+      translateX.value = withTiming((width - 40) / 2, {duration: 300});
       transX.value = withTiming(-width, {duration: 300});
     }
     if (slideView === 2) {
-      translateX.value = withTiming(((width - 40) / 3) * 2, {duration: 300});
+      translateX.value = withTiming(((width - 40) / 2) * 2, {duration: 300});
       transX.value = withTiming(-width * 2, {duration: 300});
     }
   }, [slideView]);
@@ -1084,7 +1084,7 @@ const MainWorkoutTracker = () => {
                 position: 'absolute',
                 backgroundColor: '#02BC86',
                 height: '100%',
-                width: '33.3%',
+                width: '50%',
                 zIndex: 0,
               },
               animatedStyle,
@@ -1092,7 +1092,7 @@ const MainWorkoutTracker = () => {
           />
           <TouchableOpacity
             style={{
-              width: '33.3%',
+              width: '50%',
               alignItems: 'center',
               justifyContent: 'center',
               zIndex: 2,
@@ -1110,7 +1110,7 @@ const MainWorkoutTracker = () => {
           </TouchableOpacity>
           <TouchableOpacity
             style={{
-              width: '33.3%',
+              width: '50%',
               alignItems: 'center',
               justifyContent: 'center',
               zIndex: 2,
@@ -1126,7 +1126,7 @@ const MainWorkoutTracker = () => {
               Sessions
             </Text>
           </TouchableOpacity>
-          <TouchableOpacity
+          {/* <TouchableOpacity
             style={{
               width: '33.3%',
               alignItems: 'center',
@@ -1143,7 +1143,7 @@ const MainWorkoutTracker = () => {
               ]}>
               Progress
             </Text>
-          </TouchableOpacity>
+          </TouchableOpacity> */}
         </View>
       </View>
       <Animated.View

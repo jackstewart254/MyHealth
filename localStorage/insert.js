@@ -35,16 +35,20 @@ const storeNewTemplateArray = async (key, templateArray) => {
 };
 
 const setStoreExercise = async () => {
-  const res = await fetchExercises();
+  let res = await fetchExercises();
   const localRes = await getExercise('exercise');
   const existingExercises = Array.isArray(localRes) ? localRes : [];
-  for (let i = 0; i < res?.length; i++) {
-    const present = existingExercises.find(item => item.id === res[i].id);
+  let add = [];
+  for (let i = 0; i < existingExercises?.length; i++) {
+    const present = res.find(item => item.id === existingExercises[i].id);
     if (!present) {
-      existingExercises.push(res[i]);
+      add.push(existingExercises[i]);
     }
   }
-  await AsyncStorage.setItem('exercise', JSON.stringify(existingExercises));
+  for (let i = 0; i < add.length; i++) {
+    res.push(add[i]);
+  }
+  await AsyncStorage.setItem('exercise', JSON.stringify(res));
 };
 
 const storeNewExercise = async exercise => {

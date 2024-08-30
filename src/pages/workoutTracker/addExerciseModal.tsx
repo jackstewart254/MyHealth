@@ -9,6 +9,7 @@ import {
   TouchableOpacity,
   FlatList,
   ScrollView,
+  Alert,
 } from 'react-native';
 import {
   ChevronDown,
@@ -49,12 +50,15 @@ const AddExerciseModal = () => {
   const [showAddNew, setShowAddNew] = useState(false);
   const [exercises, setExercises] = useState([]);
   const [refresh, setRefresh] = useState(false);
+  const [filteredExercises, setFilteredExercises] = useState([]);
   const types = [
     {id: 0, type: 'Weight'},
     {id: 1, type: 'Cardio'},
     {id: 2, type: 'Body'},
     {id: 3, type: 'Stretch'},
   ];
+
+  const [selection, setSelection] = useState(-1);
 
   const bar_type = [
     {id: 0, type: 'None'},
@@ -64,11 +68,26 @@ const AddExerciseModal = () => {
     {id: 4, type: 'Resistance Band'},
   ];
   const [newObject, setNewObject] = useState({
-    bar_type: 0,
-    id: 0,
+    bar_type: -1,
+    id: -1,
     name: '',
-    type: 0,
+    type: -1,
+    muscle: -1,
   });
+
+  const muscle = [
+    'back',
+    'arms',
+    'chest',
+    'shoulders',
+    'legs',
+    'cardio',
+    'core',
+  ];
+
+  useEffect(() => {
+    console.log(newObject);
+  }, [newObject]);
 
   useEffect(() => {
     if (workoutTracker.animateAddExercise === true) {
@@ -79,6 +98,15 @@ const AddExerciseModal = () => {
   useEffect(() => {
     handleGetExercise();
   }, [workoutTracker.newExercise]);
+
+  useEffect(() => {
+    if (selection > -1) {
+      const filteredSet = exercises.filter(x => x.muscle === selection);
+      setFilteredExercises(filteredSet);
+    } else {
+      setFilteredExercises(exercises);
+    }
+  }, [selection]);
 
   useEffect(() => {
     if (close === true) {
@@ -104,6 +132,8 @@ const AddExerciseModal = () => {
   const handleGetExercise = async () => {
     const res = await getExercise('exercise');
     setExercises(res);
+    setFilteredExercises(res);
+    setSelection(-1);
   };
 
   const setValue = (text: string) => {
@@ -131,7 +161,12 @@ const AddExerciseModal = () => {
   };
 
   const addExercise = async () => {
-    if (addNewVal.length > 0) {
+    if (
+      addNewVal.length > 0 &&
+      newObject.bar_type > -1 &&
+      newObject.muscle > -1 &&
+      newObject.type > -1
+    ) {
       const id = generateRandomID();
       const exercise = {
         id: id,
@@ -142,11 +177,16 @@ const AddExerciseModal = () => {
       storeNewExercise(exercise);
       handleAddExercise({exercise: exercise});
       setNewObject({
-        id: 0,
+        id: -1,
         name: '',
-        type: 0,
-        bar_type: 0,
+        type: -1,
+        bar_type: -1,
+        muscle: -1,
       });
+    } else {
+      Alert.alert(
+        'Ensure you have given the exercise a name and checked each box',
+      );
     }
     setRefresh(true);
   };
@@ -160,7 +200,8 @@ const AddExerciseModal = () => {
           item.name.toLowerCase().includes(searchValue.toLowerCase()),
         );
       };
-      setExercises(findMatchingNames(exerciseVal, exercises));
+      setFilteredExercises(findMatchingNames(exerciseVal, exercises));
+      setSelection(-1);
     }
   }, [exerciseVal]);
 
@@ -215,7 +256,7 @@ const AddExerciseModal = () => {
                 backgroundColor: '#E2E2E2',
                 borderRadius: 5,
                 fontSize: 14,
-                marginBottom: 20,
+                marginBottom: 10,
                 fontFamily: 'SFUIText-Medium',
                 color: '#24262E',
               }}
@@ -228,6 +269,58 @@ const AddExerciseModal = () => {
             />
           )}
         </View>
+        <ScrollView
+          horizontal={true}
+          contentContainerStyle={{
+            flexDirection: 'row',
+            marginBottom: 10,
+            paddingHorizontal: 10,
+          }}
+          style={{flexGrow: 0, flexShrink: 0}}>
+          <TouchableOpacity
+            onPress={() => {
+              setSelection(-1);
+            }}
+            style={{
+              padding: 10,
+              backgroundColor: selection === -1 ? '#00B0FF' : '#D9D9D9',
+              borderRadius: 10,
+              marginRight: 10,
+            }}>
+            <Text
+              style={{
+                fontSize: 14,
+                fontFamily: 'SFUIText-Medium',
+                color: selection === -1 ? 'white' : '#24262E',
+              }}>
+              All
+            </Text>
+          </TouchableOpacity>
+          {muscle.map((m, index) => {
+            return (
+              <TouchableOpacity
+                onPress={() => {
+                  setSelection(index);
+                }}
+                key={index}
+                style={{
+                  padding: 10,
+                  backgroundColor: selection === index ? '#00B0FF' : '#D9D9D9',
+                  borderRadius: 10,
+                  marginRight: 10,
+                }}>
+                <Text
+                  style={{
+                    fontSize: 14,
+                    fontFamily: 'SFUIText-Medium',
+                    color: selection === index ? 'white' : '#24262E',
+                  }}>
+                  {m}
+                </Text>
+              </TouchableOpacity>
+            );
+          })}
+        </ScrollView>
         <View
           style={{
             width: '100%',
@@ -240,7 +333,7 @@ const AddExerciseModal = () => {
             flexDirection: 'column',
             paddingHorizontal: 10,
           }}>
-          {exercises?.map((item, index) => (
+          {filteredExercises?.map((item, index) => (
             <View key={item.id}>
               <TouchableOpacity
                 onPress={() => {
@@ -384,6 +477,43 @@ const AddExerciseModal = () => {
               </TouchableOpacity>
             ))}
           </View>
+          <Text style={[styles.medSF, {fontSize: 14, paddingBottom: 10}]}>
+            Select muscle group
+          </Text>
+          <View
+            style={{
+              width: '100%',
+              flexDirection: 'row',
+              flexWrap: 'wrap',
+              marginBottom: 10,
+            }}>
+            {muscle.map((item, index) => (
+              <TouchableOpacity
+                onPress={() => {
+                  setNewObject({...newObject, muscle: index});
+                }}
+                key={index}
+                style={{
+                  alignItems: 'center',
+                  paddingVertical: 10,
+                  marginRight: 10,
+                  backgroundColor:
+                    newObject.muscle === index ? '#00B0FF' : '#E2E2E2',
+                  borderRadius: 5,
+                  marginBottom: 10,
+                  paddingHorizontal: 10,
+                }}>
+                <Text
+                  style={{
+                    fontSize: 14,
+                    color: newObject.muscle === index ? 'white' : '#24262E',
+                    fontFamily: 'SFUIText-Regular',
+                  }}>
+                  {item}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </View>
         </View>
         <TouchableOpacity
           onPress={addExercise}
@@ -395,7 +525,7 @@ const AddExerciseModal = () => {
             borderRadius: 5,
             paddingVertical: 10,
           }}>
-          <Text style={[styles.medSF, {fontSize: 14}]}>Add {}</Text>
+          <Text style={[styles.medSF, {fontSize: 14}]}>Add</Text>
         </TouchableOpacity>
       </View>
     );
@@ -421,14 +551,14 @@ const AddExerciseModal = () => {
             position: 'absolute',
             zIndex: 3,
             width: width * 0.85,
-            height: height * 0.44,
+            height: height * 0.6,
             backgroundColor: '#24262E',
             borderRadius: 10,
             borderWidth: 1,
             borderColor: 'white',
             flexDirection: 'column',
             paddingVertical: 10,
-            bottom: height / 2 - (height * 0.44) / 2,
+            bottom: height / 2 - (height * 0.6) / 2,
             left: width / 2 - (width * 0.85) / 2,
           },
         ]}>

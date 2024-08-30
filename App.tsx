@@ -107,6 +107,7 @@ const App = () => {
   }, []);
 
   useEffect(() => {
+    // clearKey('exercise');
     const uploadSessions = async () => {
       const res = JSON.parse(await AsyncStorage.getItem('sessions'));
       const id = await getDBSessions(logged.user.id);
