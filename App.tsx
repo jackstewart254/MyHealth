@@ -37,14 +37,6 @@ const App = () => {
     };
     insert();
     const handleAppStateChange = nextAppState => {
-      if (appState.match(/inactive|background/) && nextAppState === 'active') {
-        console.log('App has come to the foreground!');
-      }
-
-      if (nextAppState === 'background') {
-        console.log('App has gone to the background!');
-      }
-
       setAppState(nextAppState);
     };
 

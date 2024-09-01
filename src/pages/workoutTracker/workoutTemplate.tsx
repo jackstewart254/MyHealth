@@ -74,11 +74,22 @@ const CreateWorkout = () => {
   }, [workoutTracker.newExercise]);
 
   useEffect(() => {
-    console.log(set);
     setActiveWorkoutState({
       ongoing: workoutTracker.activeWorkout,
       startTime: workoutTracker.activeWorkoutStartTime,
       template: {
+        name: template,
+        exercises: exerciseArr,
+        sets: set,
+        date: '',
+        duration: 0,
+        id: workoutTracker.activeWorkoutTemplate.id,
+        session_num: 0,
+      },
+    });
+    setWorkoutTracker({
+      ...workoutTracker,
+      activeWorkoutTemplate: {
         name: template,
         exercises: exerciseArr,
         sets: set,
@@ -172,7 +183,6 @@ const CreateWorkout = () => {
       ) {
         smallestDifference = difference;
         closestSession = sessions[i];
-        console.log(format(sessionTime, 'mm:hh:dd'));
       }
     }
     if (closestSession !== null) {
@@ -180,7 +190,6 @@ const CreateWorkout = () => {
       if (sets.length > 0) {
         const one = sets.find(o => o.order === order);
         if (order !== undefined) {
-          console.log(one);
           return one;
         }
       }
@@ -207,7 +216,6 @@ const CreateWorkout = () => {
       exercise => exerciseSet.length - 1 === exercise.order,
     );
     const res = await getPrevious(id, exerciseSet.length);
-    console.log(res);
     const prev =
       res !== undefined
         ? type === 0
@@ -260,7 +268,7 @@ const CreateWorkout = () => {
     xID: number,
     order: number,
   ) => {
-    setRestTime(String(new Date()));
+    // setRestTime(String(new Date()));
     if (edit === true) {
       removeElement(id);
     } else {
@@ -270,7 +278,7 @@ const CreateWorkout = () => {
             return {
               ...item,
               pause: true,
-              rest: {start: restTime, end: String(new Date())},
+              rest: {start: item.rest.start, end: String(new Date())},
             };
           }
           return item;
@@ -280,6 +288,9 @@ const CreateWorkout = () => {
         setSet(newArray);
       }
       if (state === 1) {
+        const valid = set.find(
+          s => s.order === order + 1 && s.exercise_id === xID,
+        );
         const newArray = set.map(item => {
           if (item.id === id) {
             return {
@@ -289,9 +300,22 @@ const CreateWorkout = () => {
           }
           return item;
         });
-
-        newArray.sort((a, b) => a.order - b.order);
-        setSet(newArray);
+        if (valid !== undefined) {
+          const addArray = newArray.map(item => {
+            if (item.id === valid.id) {
+              return {
+                ...item,
+                rest: {start: String(new Date()), end: String(new Date())},
+              };
+            }
+            return item;
+          });
+          addArray.sort((a, b) => a.order - b.order);
+          setSet(addArray);
+        } else {
+          newArray.sort((a, b) => a.order - b.order);
+          setSet(newArray);
+        }
       }
     }
   };
@@ -303,8 +327,9 @@ const CreateWorkout = () => {
     for (let i = 0; i < set.length; i++) {
       let currentObject = set[i];
       let updatedObject = {...currentObject, id: generateRandomID()};
-      newSet.push(updatedObject);
-      console.log(updatedObject.rest);
+      if (currentObject.isFinished === true) {
+        newSet.push(updatedObject);
+      }
     }
 
     storeSessionInstance({
@@ -826,8 +851,8 @@ const CreateWorkout = () => {
                     index > 0 &&
                     setsForExercise[index - 1].isFinished === true &&
                     set.pause === false
-                      ? handleIsFinished(set.id, 0)
-                      : handleIsFinished(set.id, 1);
+                      ? handleIsFinished(set.id, 0, item.id, set.order)
+                      : handleIsFinished(set.id, 1, item.id, set.order);
                   }}
                   style={{
                     width: width * 0.07,

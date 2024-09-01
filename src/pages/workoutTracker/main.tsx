@@ -111,6 +111,7 @@ const MainWorkoutTracker = () => {
   const start = startOfWeek(new Date(), {weekStartsOn: 1});
   const weekDays = Array.from({length: 7}, (_, i) => addDays(start, i));
   const [weekWorkouts, setWeekWorkouts] = useState([]);
+  const [dates, setDates] = useState([]);
 
   useEffect(() => {
     if (slideView === 0) {
@@ -131,6 +132,16 @@ const MainWorkoutTracker = () => {
     // clearStorage();
     const handleSessions = async () => {
       const res = await fetchSessions();
+      let newDates = [];
+      for (let i = 0; i < res.length; i++) {
+        const date = format(res[i].date, 'dd:MM:yyyy');
+        const present = newDates.find(d => format(d, 'dd:MM:yyyy') === date);
+        if (present === undefined) {
+          newDates.push(res[i].date);
+        }
+      }
+      newDates.sort((a, b) => new Date(b) - new Date(a));
+      setDates(newDates);
       setSessions(res);
     };
 
@@ -381,7 +392,23 @@ const MainWorkoutTracker = () => {
           borderWidth: 1,
           marginBottom: 10,
         }}>
-        <Text style={[styles.medSF, {fontSize: 16}]}>{item.name}</Text>
+        <View
+          style={{
+            flexDirection: 'row',
+            width: '100%',
+            justifyContent: 'space-between',
+            alignItems: 'baseline',
+          }}>
+          <Text style={[styles.medSF, {fontSize: 16}]}>{item.name}</Text>
+          <Text
+            style={{
+              fontSize: 14,
+              color: 'white',
+              fontFamily: 'SFUIText-Regular',
+            }}>
+            {item.duration}min
+          </Text>
+        </View>
         {item.exercises.map((exercise, eIndex) => {
           const setLength = item.sets.filter(
             set => exercise.id === set.exercise_id,
@@ -429,7 +456,7 @@ const MainWorkoutTracker = () => {
 
   const workoutSummary = () => {
     const session = workoutTracker.activeWorkoutTemplate;
-    const sets = session.sets;
+    const sets = session.sets.filter(set => set.isFinished === true);
     const exercises = session.exercises;
     let totalWeight;
     for (let i = 0; i < sets; i++) {
@@ -517,7 +544,7 @@ const MainWorkoutTracker = () => {
                 fontSize: 14,
                 fontFamily: 'SFUIText-Regular',
               }}>
-              10m
+              {session.duration}
               {workoutTracker.duration}
             </Text>
           </View>
@@ -526,9 +553,7 @@ const MainWorkoutTracker = () => {
             contentContainerStyle={{alignItems: 'center'}}>
             {session.exercises.map((exercise, index) => {
               const type = exercise.type;
-              const set = session.sets.filter(
-                set => exercise.id === set.exercise_id,
-              );
+              const set = sets.filter(set => exercise.id === set.exercise_id);
               return (
                 <View key={exercise.id} style={{flexDirection: 'column'}}>
                   <Text
@@ -1208,35 +1233,41 @@ const MainWorkoutTracker = () => {
         <ScrollView
           showsVerticalScrollIndicator={false}
           contentContainerStyle={{
-            flexDirection: 'row',
+            flexDirection: 'column',
             width: width,
             paddingHorizontal: 20,
-            // height: '100%',
             paddingBottom: 300,
           }}
           style={{width: width}}>
-          {/* First List */}
-          <View style={{width: '50%', paddingRight: 5}}>
-            {/* {sessions.map((item, index) => (
-              <View key={index}>
-                <Text>{item.name}</Text>
+          {dates.map((date, index) => {
+            const instances = sessions.filter(
+              s => format(s.date, 'dd:MM:yyyy') === format(date, 'dd:MM:yyyy'),
+            );
+
+            return (
+              <View
+                key={index}
+                style={{flexDirection: 'column', paddingBottom: 10}}>
+                <Text
+                  style={{
+                    paddingBottom: 10,
+                    color: 'white',
+                    fontSize: 16,
+                    fontFamily: 'SFUIText-Semibold',
+                  }}>
+                  {format(date, 'EEEE, do MMMM')}
+                </Text>
+                <View style={{width: '100%'}}>
+                  <FlatList
+                    data={instances}
+                    renderItem={renderSessions}
+                    keyExtractor={item => item.id.toString()}
+                    scrollEnabled={false}
+                  />
+                </View>
               </View>
-            ))} */}
-            <FlatList
-              data={sessions.filter((_, index) => index % 2 === 0)}
-              renderItem={renderSessions}
-              keyExtractor={item => item.id.toString()}
-              scrollEnabled={false} // Disable individual scrolling
-            />
-          </View>
-          <View style={{width: '50%', paddingLeft: 5}}>
-            <FlatList
-              data={sessions.filter((_, index) => index % 2 > 0)}
-              renderItem={renderSessions}
-              keyExtractor={(item, index) => index.toString()}
-              scrollEnabled={false} // Disable individual scrolling
-            />
-          </View>
+            );
+          })}
         </ScrollView>
         <View style={{width: width}}>
           <Progress />
