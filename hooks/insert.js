@@ -3,6 +3,7 @@ import {fetchUser} from '../localStorage/insert';
 import supabase from '../supabase';
 import {fetchExercises} from './fetch';
 import {differenceInSeconds} from 'date-fns';
+import axios from 'axios';
 
 const insertExercise = async exercise => {
   const {data, error} = await supabase
@@ -94,4 +95,13 @@ const insertError = async (location, uError) => {
   console.log(data, error);
 };
 
-export {insertWorkout, insertError};
+const insertActivity = async state => {
+  const user = JSON.parse(await AsyncStorage.getItem('auth'));
+  if (user !== null) {
+    const conc =
+      'https://mclean-api.vercel.app/api/insert/' + user.user.id + '/' + state;
+    await axios.post(conc);
+  }
+};
+
+export {insertWorkout, insertError, insertActivity};

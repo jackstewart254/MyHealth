@@ -1,6 +1,6 @@
 import MainWorkoutTracker from './src/pages/workoutTracker/main';
 import React, {useEffect, useState} from 'react';
-import {View, Text, Alert, Platform} from 'react-native';
+import {View, Text, Alert, Platform, AppState} from 'react-native';
 import NetInfo from '@react-native-community/netinfo';
 import {QueryClient, QueryClientProvider} from '@tanstack/react-query';
 import 'react-native-url-polyfill/auto';
@@ -20,7 +20,7 @@ import messaging from '@react-native-firebase/messaging';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {localNotification} from './src/components/localNotification';
 import NotificationBanner from './src/components/NotificationBanner';
-import {insertWorkout} from './hooks/insert';
+import {insertActivity, insertWorkout} from './hooks/insert';
 const queryClient = new QueryClient();
 
 const App = () => {
@@ -28,6 +28,35 @@ const App = () => {
   const [isConnected, setIsConnected] = useState(null);
   const [token, setToken] = useState();
   const [logged, setLogged] = useState(false);
+
+  const [appState, setAppState] = useState(AppState.currentState);
+
+  useEffect(() => {
+    const insert = async () => {
+      await insertActivity(appState);
+    };
+    insert();
+    const handleAppStateChange = nextAppState => {
+      if (appState.match(/inactive|background/) && nextAppState === 'active') {
+        console.log('App has come to the foreground!');
+      }
+
+      if (nextAppState === 'background') {
+        console.log('App has gone to the background!');
+      }
+
+      setAppState(nextAppState);
+    };
+
+    const subscription = AppState.addEventListener(
+      'change',
+      handleAppStateChange,
+    );
+
+    return () => {
+      subscription.remove();
+    };
+  }, [appState]);
 
   useEffect(() => {
     const initializeFCM = async () => {
@@ -66,7 +95,6 @@ const App = () => {
             return false;
           }
         };
-
         const intervalId = setInterval(async () => {
           const permissionGranted = await requestUserPermission();
           if (permissionGranted) {
