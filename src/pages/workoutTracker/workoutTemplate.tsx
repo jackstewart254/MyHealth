@@ -543,18 +543,48 @@ const CreateWorkout = () => {
             width: '100%',
             justifyContent: 'space-between',
             paddingVertical: 10,
+            zIndex: 1,
           }}>
-          <Text style={[styles.blueSemiboldSF]}>
+          <Text
+            style={{
+              fontSize: 16,
+              color: '#00B0FF',
+              fontFamily: 'SFUIText-Semibold',
+            }}>
             {item.name}{' '}
             {(item.bar_type === 1 && '(Barbell)') ||
               (item.bar_type == 2 && '(Dumbbell)')}
           </Text>
-          <TouchableOpacity
-            onPress={() => {
-              handleDeleteExercise(item.id);
-            }}>
-            <Text style={[styles.redSemiboldSF]}>Delete</Text>
-          </TouchableOpacity>
+          {edit === true && (
+            <TouchableOpacity
+              onPress={() => {
+                handleDeleteExercise(item.id);
+              }}>
+              <Text
+                style={{
+                  fontSize: 16,
+                  fontFamily: 'SFUIText-Semibold',
+                  color: '#FF2A00',
+                }}>
+                Delete
+              </Text>
+            </TouchableOpacity>
+          )}
+          {workoutTracker.activeWorkout === false && (
+            <TouchableOpacity
+              onPress={() => {
+                handleDeleteExercise(item.id);
+              }}>
+              <Text
+                style={{
+                  fontSize: 16,
+                  fontFamily: 'SFUIText-Semibold',
+                  color: '#FF2A00',
+                }}>
+                Delete
+              </Text>
+            </TouchableOpacity>
+          )}
         </View>
         <View
           key={index}
