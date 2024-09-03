@@ -50,6 +50,7 @@ import {insertWorkout} from '../../../hooks/insert';
 import ConnectionStatus from '../../components/connectionStatus';
 import useConnectionStatus from '../../components/connectionStatus';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import NumKeyboard from '../../components/keyboard/numericKeyboard';
 
 const CreateWorkout = () => {
   const [exerciseArr, setExerciseArr] = useState([]);
@@ -64,6 +65,7 @@ const CreateWorkout = () => {
   const [close, setClose] = useState(false);
   const {isConnected, connectionType} = useConnectionStatus();
   const [restTime, setRestTime] = useState(String);
+  const [showNumKeyboard, setShowNumKeyboard] = useState(false);
 
   useEffect(() => {}, [isConnected]);
 
@@ -189,6 +191,7 @@ const CreateWorkout = () => {
       const sets = closestSession.sets.filter(x => x.order === order);
       if (sets.length > 0) {
         const one = sets.find(o => o.order === order);
+        console.log(one);
         if (order !== undefined) {
           return one;
         }
@@ -233,13 +236,13 @@ const CreateWorkout = () => {
       session_num: workoutTracker.activeWorkoutTemplate.session_num,
       id: val,
       exercise_id: id,
-      weight: present !== undefined ? present.weight : '0',
-      reps: present !== undefined ? present.reps : '0',
+      weight: present !== undefined ? present.weight : '',
+      reps: present !== undefined ? present.reps : '',
       order: exerciseSet.length,
       created_at: new Date(),
       isFinished: false,
-      distance: present !== undefined ? present.distance : '0',
-      duration: present !== undefined ? present.duration : '0',
+      distance: present !== undefined ? present.distance : '',
+      duration: present !== undefined ? present.duration : '',
       previous: prev,
       rest: {start: date, end: date},
       pause: false,
@@ -426,7 +429,7 @@ const CreateWorkout = () => {
   };
 
   const updateSet = (id: number, newVal: string, prop: string) => {
-    const numericValue = newVal === '' ? '' : parseInt(newVal, 10);
+    const numericValue = newVal === '' ? '' : newVal;
     if (isNaN(numericValue)) {
       return;
     }
@@ -757,9 +760,10 @@ const CreateWorkout = () => {
                   </Text>
                 )}
               </View>
-              <View
+              <TextInput
+                placeholder={'0'}
+                placeholderTextColor={'white'}
                 style={{
-                  overflow: 'hidden',
                   width:
                     (exerciseType === 3 && width * 0.25) ||
                     (exerciseType === 0 && width * 0.11) ||
@@ -767,41 +771,35 @@ const CreateWorkout = () => {
                     (exerciseType === 1 && width * 0.11),
                   height: 30,
                   borderRadius: 5,
-                  alignItems: 'center',
-                  justifyContent: 'center',
                   backgroundColor: set.isFinished
                     ? '#02BC86'
                     : set.pause === true
                     ? '#FFA800'
                     : '#A7A8AB',
-                }}>
-                <TextInput
-                  placeholder={'0'}
-                  placeholderTextColor={'white'}
-                  style={[
-                    styles.medSF,
-                    {fontSize: 14, width: '100%', textAlign: 'center'},
-                  ]}
-                  keyboardType="numeric"
-                  value={
-                    (exerciseType === 3 && String(set.duration)) ||
-                    (exerciseType === 0 && String(set.weight)) ||
-                    (exerciseType === 1 && String(set.distance)) ||
-                    (exerciseType === 2 && String(set.weight))
-                  }
-                  onChangeText={text => {
-                    updateSet(
-                      set.id,
-                      text,
-                      (exerciseType === 0 && 'weight') ||
-                        (exerciseType === 3 && 'duration') ||
-                        (exerciseType === 1 && 'distance') ||
-                        (exerciseType === 2 && 'weight'),
-                    );
-                  }}
-                  selectTextOnFocus={true}
-                />
-              </View>
+                  color: 'white',
+                  fontFamilty: 'SFUIText-Medium',
+                  fontsize: 14,
+                  textAlign: 'center',
+                }}
+                keyboardType="numeric"
+                value={
+                  (exerciseType === 3 && String(set.duration)) ||
+                  (exerciseType === 0 && String(set.weight)) ||
+                  (exerciseType === 1 && String(set.distance)) ||
+                  (exerciseType === 2 && String(set.weight))
+                }
+                onChangeText={text => {
+                  updateSet(
+                    set.id,
+                    text,
+                    (exerciseType === 0 && 'weight') ||
+                      (exerciseType === 3 && 'duration') ||
+                      (exerciseType === 1 && 'distance') ||
+                      (exerciseType === 2 && 'weight'),
+                  );
+                }}
+                selectTextOnFocus={true}
+              />
               {exerciseType !== 3 && (
                 <View
                   style={{

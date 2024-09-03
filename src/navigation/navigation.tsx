@@ -12,6 +12,7 @@ import {clearKey, fetchUser} from '../../localStorage/insert';
 import Login from '../../auth/login';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Profile from '../pages/profile/main';
+import Feed from '../pages/feed/main';
 
 const width = Dimensions.get('screen').width;
 const height = Dimensions.get('screen').height;
@@ -20,7 +21,7 @@ const Navigation = () => {
   const {workoutTracker, setWorkoutTracker} = useWorkoutTracker();
   const [userValid, setUserValid] = useState(false);
   const [showLogin, setShowLogin] = useState(false);
-  const [view, setView] = useState(0);
+  const [view, setView] = useState(1);
   const translateX = useSharedValue(0);
 
   const animatedSlide = useAnimatedStyle(() => {
@@ -52,6 +53,11 @@ const Navigation = () => {
       translateX.value = withTiming(0, {duration: 200});
     }
     if (view === 1) {
+      // translateX.value = withTiming(-width, {duration: 200});
+      translateX.value = withTiming(0, {duration: 200});
+    }
+    if (view === 2) {
+      // translateX.value = withTiming(-width * 2, {duration: 200});
       translateX.value = withTiming(-width, {duration: 200});
     }
   }, [view]);
@@ -74,7 +80,7 @@ const Navigation = () => {
             overflow: 'hidden',
             borderRadius: 10,
           }}>
-          <TouchableOpacity
+          {/* <TouchableOpacity
             onPress={() => {
               setView(0);
             }}
@@ -91,9 +97,9 @@ const Navigation = () => {
                 color: '#24262E',
                 fontSize: view === 0 ? 18 : 16,
               }}>
-              Track
+              Feed
             </Text>
-          </TouchableOpacity>
+          </TouchableOpacity> */}
           <TouchableOpacity
             onPress={() => {
               setView(1);
@@ -110,6 +116,26 @@ const Navigation = () => {
                   view === 1 ? 'SFUIText-Semibold' : 'SFUIText-Medium',
                 color: '#24262E',
                 fontSize: view === 1 ? 18 : 16,
+              }}>
+              Track
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => {
+              setView(2);
+            }}
+            style={{
+              width: 80,
+              height: 60,
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}>
+            <Text
+              style={{
+                fontFamily:
+                  view === 2 ? 'SFUIText-Semibold' : 'SFUIText-Medium',
+                color: '#24262E',
+                fontSize: view === 2 ? 18 : 16,
               }}>
               Profile
             </Text>
@@ -189,6 +215,7 @@ const Navigation = () => {
             },
             animatedSlide,
           ]}>
+          {/* <Feed /> */}
           <MainWorkoutTracker />
           <Profile />
         </Animated.View>
