@@ -50,7 +50,6 @@ const fetchSets = async id => {
   return filteredValue;
 };
 
-
 // const fetch;
 
 // const fetchSpecificSets = async (id: ) => {

@@ -66,6 +66,7 @@ const CreateWorkout = () => {
   const {isConnected, connectionType} = useConnectionStatus();
   const [restTime, setRestTime] = useState(String);
   const [showNumKeyboard, setShowNumKeyboard] = useState(false);
+  const [showMore, setShowMore] = useState({state: false, xID: -1, sets: -1});
 
   useEffect(() => {}, [isConnected]);
 
@@ -74,6 +75,13 @@ const CreateWorkout = () => {
       setWorkoutTracker({...workoutTracker, newExercise: false});
     }
   }, [workoutTracker.newExercise]);
+
+  useEffect(() => {
+    if (showMore.state === true) {
+      const val = set.filter(s => s.exercise_id === showMore.xID);
+      // setShowMore({...showMore, sets: val.length});
+    }
+  }, [showMore]);
 
   useEffect(() => {
     setActiveWorkoutState({
@@ -163,39 +171,25 @@ const CreateWorkout = () => {
 
   const getPrevious = async (xId, order) => {
     const current = new Date();
-    const sessions = JSON.parse(await AsyncStorage.getItem('sessions'));
-
-    if (!sessions || sessions.length === 0) {
-      return;
-    }
-
+    const sets = JSON.parse(await AsyncStorage.getItem('sets')).filter(
+      s => s.order === order,
+    );
     let closestSession = null;
     let smallestDifference = Infinity;
+    console.log(sets.length);
 
-    for (let i = 0; i < sessions.length; i++) {
-      const sessionTime = new Date(sessions[i].date);
+    for (let i = 0; i < sets.length; i++) {
+      const sessionTime = new Date(sets[i].created_at);
       const difference = Math.abs(current - sessionTime);
-      const exercise = sessions[i].exercises.find(x => x.id === xId);
-      const xSets = sessions[i].sets.filter(set => set.exercise_id === xId);
+      const exercise = sets[i].exercise_id;
 
-      if (
-        difference < smallestDifference &&
-        exercise !== undefined &&
-        xSets.length > 0
-      ) {
+      if (difference < smallestDifference && exercise === xId) {
         smallestDifference = difference;
-        closestSession = sessions[i];
+        closestSession = sets[i];
       }
     }
     if (closestSession !== null) {
-      const sets = closestSession.sets.filter(x => x.order === order);
-      if (sets.length > 0) {
-        const one = sets.find(o => o.order === order);
-        console.log(one);
-        if (order !== undefined) {
-          return one;
-        }
-      }
+      return closestSession;
     } else {
       return;
     }
@@ -272,7 +266,7 @@ const CreateWorkout = () => {
     order: number,
   ) => {
     // setRestTime(String(new Date()));
-    if (edit === true) {
+    if (edit === true && xID === showMore.xID) {
       removeElement(id);
     } else {
       if (state === 0) {
@@ -527,6 +521,7 @@ const CreateWorkout = () => {
     const sets = set.filter(s => id !== s.exercise_id);
     setSet(sets);
     setExerciseArr(filter);
+    setShowMore({state: false, xID: -1, sets: -1});
   };
 
   const renderExercises = ({item, index}: {item: object; index: number}) => {
@@ -548,27 +543,137 @@ const CreateWorkout = () => {
           <Text
             style={{
               fontSize: 16,
-              color: '#00B0FF',
+              color: '#02BC86',
               fontFamily: 'SFUIText-Semibold',
             }}>
             {item.name}{' '}
             {(item.bar_type === 1 && '(Barbell)') ||
               (item.bar_type == 2 && '(Dumbbell)')}
           </Text>
-          {edit === true && (
+          {workoutTracker.activeWorkout === true && (
             <TouchableOpacity
+              style={{
+                flexDirection: 'row',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
               onPress={() => {
-                handleDeleteExercise(item.id);
+                setShowMore({
+                  ...showMore,
+                  state: !showMore.state,
+                  xID: item.id,
+                });
               }}>
-              <Text
+              <View
+                style={{
+                  height: 5,
+                  width: 5,
+                  borderRadius: 3,
+                  backgroundColor: '#00B0FF',
+                }}
+              />
+              <View
+                style={{
+                  height: 5,
+                  width: 5,
+                  borderRadius: 3,
+                  backgroundColor: '#00B0FF',
+                  marginLeft: 4,
+                }}
+              />
+              <View
+                style={{
+                  height: 5,
+                  width: 5,
+                  borderRadius: 3,
+                  backgroundColor: '#00B0FF',
+                  marginLeft: 4,
+                }}
+              />
+              {/* <Text
                 style={{
                   fontSize: 16,
                   fontFamily: 'SFUIText-Semibold',
                   color: '#FF2A00',
                 }}>
                 Delete
-              </Text>
+              </Text> */}
             </TouchableOpacity>
+          )}
+          {showMore.state === true && showMore.xID === item.id && (
+            <View
+              style={{
+                position: 'absolute',
+                zIndex: 1,
+                top: 38,
+                right: 0,
+                width: width * 0.28,
+                backgroundColor: '#24262E',
+                alignItems: 'center',
+                borderWidth: 1,
+                borderColor: 'white',
+                borderRadius: 5,
+              }}>
+              <View
+                style={{
+                  width: '100%',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}>
+                <Text
+                  style={{
+                    fontSize: 14,
+                    color: '#A7A8AB',
+                    fontFamily: 'SFUIText-Medium',
+                    paddingVertical: 10,
+                  }}>
+                  Superset
+                </Text>
+              </View>
+              {showMore.sets > 0 && (
+                <TouchableOpacity
+                  onPress={() => {
+                    setEdit(!edit);
+                  }}
+                  style={{
+                    width: '100%',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}>
+                  <Text
+                    style={{
+                      fontSize: 14,
+                      color: 'white',
+                      fontFamily: 'SFUIText-Medium',
+                      paddingVertical: 10,
+                    }}>
+                    {edit ? 'Cancel Edit' : 'Edit sets'}
+                  </Text>
+                </TouchableOpacity>
+              )}
+              <TouchableOpacity
+                onPress={() => {
+                  handleDeleteExercise(item.id);
+                }}
+                style={{
+                  width: '100%',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  backgroundColor: '#FF2A00',
+                  borderBottomRightRadius: 4,
+                  borderBottomLeftRadius: 4,
+                }}>
+                <Text
+                  style={{
+                    fontSize: 14,
+                    color: 'white',
+                    fontFamily: 'SFUIText-Medium',
+                    paddingVertical: 10,
+                  }}>
+                  Delete
+                </Text>
+              </TouchableOpacity>
+            </View>
           )}
           {workoutTracker.activeWorkout === false && (
             <TouchableOpacity
@@ -885,18 +990,19 @@ const CreateWorkout = () => {
                   style={{
                     width: width * 0.07,
                     height: 30,
-                    backgroundColor: edit
-                      ? '#FF2A00'
-                      : set.isFinished
-                      ? '#02BC86'
-                      : set.pause === true
-                      ? '#FFA800'
-                      : '#A7A8AB',
+                    backgroundColor:
+                      edit && showMore.xID === item.id
+                        ? '#FF2A00'
+                        : set.isFinished
+                        ? '#02BC86'
+                        : set.pause === true
+                        ? '#FFA800'
+                        : '#A7A8AB',
                     borderRadius: 5,
                     alignItems: 'center',
                     justifyContent: 'center',
                   }}>
-                  {edit ? (
+                  {edit === true && showMore.xID === item.id ? (
                     <Cross width={12} height={12} color="#24262E" />
                   ) : index > 0 &&
                     setsForExercise[index - 1].isFinished === true &&
@@ -910,6 +1016,7 @@ const CreateWorkout = () => {
               ) : (
                 <TouchableOpacity
                   onPress={() => {
+                    // console.log('hello');
                     removeElement(set.id);
                   }}
                   style={{
@@ -1031,28 +1138,7 @@ const CreateWorkout = () => {
               color={'white'}
             />
           )}
-
-          {workoutTracker.slideView === 'active' && exerciseArr.length > 0 && (
-            <TouchableOpacity
-              onPress={() => {
-                setEdit(!edit);
-              }}>
-              <Text
-                style={[
-                  styles.redSemiboldSF,
-                  {
-                    width: '100%',
-                    textAlign: 'right',
-                    fontSize: 16,
-                    marginBottom: 10,
-                  },
-                ]}>
-                Edit
-              </Text>
-            </TouchableOpacity>
-          )}
         </View>
-
         <View style={{paddingBottom: 40}}>
           <FlatList
             scrollEnabled={false}
@@ -1067,7 +1153,7 @@ const CreateWorkout = () => {
             alignItems: 'center',
             justifyContent: 'center',
             width: '100%',
-            backgroundColor: '#00B0FF',
+            backgroundColor: '#02BC86',
             borderRadius: 5,
             marginBottom: 70,
           }}>
@@ -1097,7 +1183,7 @@ const CreateWorkout = () => {
           onPress={handleSavingWorkout}
           style={{
             height: 60,
-            backgroundColor: '#00B0FF',
+            backgroundColor: '#02BC86',
             alignItems: 'center',
             justifyContent: 'center',
           }}>

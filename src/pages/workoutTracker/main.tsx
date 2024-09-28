@@ -921,7 +921,12 @@ const MainWorkoutTracker = () => {
                   setShowWorkoutModal(false);
                   setClosePopup(false);
                 }}>
-                <Text style={[{fontSize: 14}, styles.nativeBlueSFMed]}>
+                <Text
+                  style={{
+                    fontSize: 14,
+                    fontFamily: 'SFUIText-Medium',
+                    color: '#02BC86',
+                  }}>
                   Edit
                 </Text>
               </TouchableOpacity>
@@ -958,7 +963,7 @@ const MainWorkoutTracker = () => {
               style={{
                 width: '100%',
                 height: 36,
-                backgroundColor: '#00B0FF',
+                backgroundColor: '#02BC86',
                 borderRadius: 5,
                 alignItems: 'center',
                 justifyContent: 'center',

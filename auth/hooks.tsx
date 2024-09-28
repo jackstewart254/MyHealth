@@ -1,6 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {fetchUser, storeAuth, storeUser} from '../localStorage/insert';
 import supabase from '../supabase';
+import axios, {Axios} from 'axios';
 
 const insertProfiles = async (id, fcm) => {
   const {data, error} = await supabase
@@ -19,10 +20,13 @@ const handleSignup = async ({
   email: string;
   password: string;
 }) => {
-  let {data, error} = await supabase.auth.signUp({
+  const local = 'http://localhost:3000/api/signup';
+  const xternal = 'https://mclean-api.vercel.app/api/login';
+  const response = await axios.post(xternal, {
     email: email,
     password: password,
   });
+  const {data, error} = response.data;
   return error;
 };
 
@@ -33,12 +37,15 @@ const handleLogin = async ({
   email: string;
   password: string;
 }) => {
-  let {data, error} = await supabase.auth.signInWithPassword({
+  const local = 'http://localhost:3000/api/login';
+  const xternal = 'https://mclean-api.vercel.app/api/login';
+  const response = await axios.post(xternal, {
     email: email,
     password: password,
   });
+  const {data, error} = response.data;
   storeAuth(data);
-  if (error === null) {
+  if (data) {
     const fcm = await AsyncStorage.getItem('fcm');
     if (fcm?.length > 0) {
       await insertProfiles(data.user?.id, fcm);
@@ -49,12 +56,12 @@ const handleLogin = async ({
   }
 };
 
-const addUser = async ({name}: {name: string}) => {
-  const {data, error} = await supabase
-    .from('users')
-    .insert([{name: name}])
-    .select();
-  return data;
-};
+// const addUser = async ({name}: {name: string}) => {
+//   const {data, error} = await supabase
+//     .from('users')
+//     .insert([{name: name}])
+//     .select();
+//   return data;
+// };
 
-export {handleLogin, handleSignup, addUser, insertProfiles};
+export {handleLogin, handleSignup, insertProfiles};

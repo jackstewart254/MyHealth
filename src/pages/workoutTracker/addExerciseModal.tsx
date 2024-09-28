@@ -76,18 +76,14 @@ const AddExerciseModal = () => {
   });
 
   const muscle = [
-    'back',
-    'arms',
-    'chest',
-    'shoulders',
-    'legs',
-    'cardio',
-    'core',
+    'Back',
+    'Arms',
+    'Chest',
+    'Shoulders',
+    'Legs',
+    'Cardio',
+    'Core',
   ];
-
-  useEffect(() => {
-    console.log(newObject);
-  }, [newObject]);
 
   useEffect(() => {
     if (workoutTracker.animateAddExercise === true) {
@@ -141,7 +137,6 @@ const AddExerciseModal = () => {
   };
 
   const handleAddExercise = ({exercise}: {exercise: object}) => {
-    console.log(exercise);
     setWorkoutTracker({...workoutTracker, exercise: exercise});
     setClose(true);
   };
